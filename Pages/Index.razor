@@ -1,0 +1,318 @@
+﻿@page "/"
+
+@inject ILocalService LocalService
+@inject DialogService DialogService
+
+@*<header>*@
+
+
+    @*<EditForm Model="usuarios">
+    <div>
+    <label>Latitude:</label>
+    <InputNumber @bind-Value="usuarios.LatitudeAtual"
+    @onclick="(latitudeAtual) => VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual)"></InputNumber>
+    </div>
+
+    <div>
+    <label>Longitude:</label>
+    <InputNumber @bind-Value="usuarios.LongitudeAtual"
+    @onclick="(longitudeAtual) => VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual)"></InputNumber>
+    </div>
+    </EditForm>*@
+@*</header>*@
+<div class="header">
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
+                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de partida"
+                        Change=@(id_Local => SelectLocalPartida(id_Local)) Style="width: 95%; max-width: 400px;">
+        </RadzenDropDown>
+    </div>
+
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-5">
+        <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalDestido AllowClear="true"
+                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de destino"
+                        Change=@(id_Local => SelectLocalDestino(id_Local)) Style="width: 95%; max-width: 400px;">
+        </RadzenDropDown>
+    </div>
+
+    <div class="rz-p-xl-12 rz-text-align-center">
+        <RadzenButton Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+    </div>
+</div>
+<div class="mapa-container">
+    <svg>
+        <polyline points="@_posicoesRota" class="rota" />
+    </svg>
+
+    <div class="mapa">
+        @for (decimal longitude = longitudeMinimaMapa; longitude <= longitudeMaximaMapa; longitude += 0.000001M)
+        {
+            @for (decimal latitude = latitudeMinimaMapa; latitude <= latitudeMaximaMapa; latitude += 0.000001M)
+            {
+                var posicao = $"{latitude}, {longitude}"; //momentaneo
+                var tipo = "";
+
+                @foreach (var local in locaisNaoAcessiveis)
+                {
+                    int latitudePX = (int)(qtdColunas - ((latitude * 1000000) * -1));
+                    int longitudePX = (int)(qtdLinhas - ((longitude * 1000000) * -1));
+
+                    @*melhorar essa lógica de centralzar*@
+                    if (latitude == local.LatitudeEntrada && longitude == local.LongitudeEntrada)
+                    {
+                        tipo = "entrada";
+                        <div class="loc_entrada" data-text="@local.Nome" style="left: @((latitudePX * tamanhoPosicaoPX) - (tamanhoPosicaoPX / 6))px;
+                                                                                 top: @((longitudePX * tamanhoPosicaoPX) - ((tamanhoPosicaoPX / 3) * 2))px;"></div>
+                    }
+                    else
+                    {
+                        if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude <= local.LongitudeMin && longitude >= local.LongitudeMax) ||
+                        (latitude <= local.LatitudeMin && latitude >= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
+                        {
+                            tipo = "parede";
+                            paredes.Add(new Tuple<decimal, decimal>(latitude, longitude));
+                        }
+                    }
+                }
+                <div class="posicao @tipo"> @*@posicao*@ </div>
+            }
+        }
+        <div class="pontoAtualUsuario" style="left: @((((int)(qtdColunas - (usuarios.LatitudeAtual * 1000000) * -1)) * tamanhoPosicaoPX) - (tamanhoPosicaoPX / 6))px;
+                                               top: @((((int)(qtdLinhas - (usuarios.LongitudeAtual * 1000000) * -1)) * tamanhoPosicaoPX) - ((tamanhoPosicaoPX / 3) * 2))px;"></div>
+    </div>
+</div>
+
+<style>
+    .mapa {
+        display: grid;
+        grid-template-columns: repeat(@qtdColunas, @(tamanhoPosicaoPX)px);
+        grid-template-rows: repeat(@qtdLinhas, @(tamanhoPosicaoPX)px);
+        position: absolute;
+        transform: translate(@(qtdColunas - usuarios.LatitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + larguraTela / 2)px, @(qtdLinhas - usuarios.LongitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + alturaTela / 2)px);
+        margin: 10vh 10vw;
+        padding-right: 45vw;
+        z-index: 1;
+    }
+
+    svg {
+        width: @(tamanhoPosicaoPX * qtdColunas)px;
+        height: @(tamanhoPosicaoPX * qtdLinhas)px;
+        position: absolute;
+        transform: translate(@(qtdColunas - usuarios.LatitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + larguraTela / 2)px, @(qtdLinhas - usuarios.LongitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + alturaTela / 2)px);
+        margin: 10vh 10vw;
+        z-index: 2;
+    }
+</style>
+
+@code {
+    static decimal latitudeMinimaMapa { get; set; } = -0.000030M; //-23.459295M;
+    static decimal longitudeMinimaMapa { get; set; } = -0.000015M; //-47.419960M;
+
+    static decimal latitudeMaximaMapa { get; set; } = -0.000001M; //-23.459140M;
+    static decimal longitudeMaximaMapa { get; set; } = -0.000001M; //-47.419875M;
+
+
+    static int qtdColunas { get; set; } = (int)((latitudeMaximaMapa - latitudeMinimaMapa) * 1000000) + 1;
+    static int qtdLinhas { get; set; } = (int)((longitudeMaximaMapa - longitudeMinimaMapa) * 1000000) + 1;
+
+    static int tamanhoPosicaoPX { get; set; } = 30; //50
+
+    static int larguraTela { get; set; } = 400; //deixar dinamico - pega o tamanho da tela
+    static int alturaTela { get; set; } = 300; //deixar dinamico
+
+    int valorSelecionadoLocalPartida;
+    int valorSelecionadoLocalDestido;
+
+
+    List<Local> locaisAcessiveis;
+    List<Local> locaisNaoAcessiveis;
+    List<Tuple<decimal, decimal>> paredes;
+
+    public string _posicoesRota { get; set; }
+
+    public decimal latitudePartida { get; set; }
+    public decimal longitudePartida { get; set; }
+
+    public decimal latitudeDestino { get; set; }
+    public decimal longitudeDestino { get; set; }
+
+    public Usuario usuarios = new Usuario();
+    public Local localSelecionadoDestino = new Local();
+    public Local localSelecionadoPartida = new Local();
+
+    public List<(decimal latitude, decimal longitude)> posicoes { get; set; } = new List<(decimal, decimal)>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        locaisNaoAcessiveis = LocalService.Locais();
+        locaisAcessiveis = locaisNaoAcessiveis.FindAll(local => local.LocalAcessivel == true);
+        paredes = LocalService.Paredes();
+
+        if (posicoes.Count > 0)
+        {
+            await VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual);
+        }
+
+        //StateHasChanged(); notifica o componente para atualizar a interface com as alterações mais recentes.
+    }
+
+    public void SelectLocalPartida(object id_Local)
+    {
+        if (id_Local != null)
+        {
+            localSelecionadoPartida = locaisNaoAcessiveis.Find(local => local.Id == (int)id_Local);
+
+            if (localSelecionadoPartida != null)
+            {
+                latitudePartida = localSelecionadoPartida.LatitudeEntrada;
+                longitudePartida = localSelecionadoPartida.LongitudeEntrada;
+            }
+        }
+    }
+
+    public void SelectLocalDestino(object id_Local)
+    {
+        if (id_Local != null)
+        {
+            localSelecionadoDestino = locaisNaoAcessiveis.Find(local => local.Id == (int)id_Local);
+
+            if (localSelecionadoDestino != null)
+            {
+                latitudeDestino = localSelecionadoDestino.LatitudeEntrada;
+                longitudeDestino = localSelecionadoDestino.LongitudeEntrada;
+            }
+            else
+            {
+                latitudeDestino = 0;
+                longitudeDestino = 0;
+
+                ZerarRota();
+            }
+        }
+
+        if (latitudeDestino != 0 && longitudeDestino != 0)
+        {
+            VerificarCaminhoValido(latitudeDestino, longitudeDestino);
+        }
+    }
+
+    public void VerificarCaminhoValido(decimal latitudeDestino, decimal longitudeDestino)
+    {
+        ZerarRota();
+
+        var posicaoInicialUsuario = (0M, 0M); /*ver se deixo 0 mesmo*/
+
+        if (localSelecionadoPartida != null)
+        {
+            if (localSelecionadoPartida.Id != 0)
+            {
+                posicaoInicialUsuario = (latitudePartida, longitudePartida);
+            }
+            else
+            {
+                posicaoInicialUsuario = (usuarios.LatitudeAtual, usuarios.LongitudeAtual);
+            }
+        }
+        else
+        {
+            posicaoInicialUsuario = (usuarios.LatitudeAtual, usuarios.LongitudeAtual);
+        }
+
+        var destino = (latitudeDestino, longitudeDestino);
+
+        var vizinhosValidos = new HashSet<(decimal, decimal)>(); //HashSet: não permite elementos repitidos na lista
+        var posioesAnalisar = new Queue<(decimal latitude, decimal longitude)>(); //Queue: fila, os elementos entram e saem em uma ordem especifica
+        var posicoesEvizinhosVerificados = new Dictionary<(decimal, decimal), (decimal, decimal)>(); //Dictionary: armazena chave-valor
+
+        posioesAnalisar.Enqueue(posicaoInicialUsuario); //Enqueue: adiciona um elemento ao final da fila(Queue)
+
+        while (posioesAnalisar.Count > 0)
+        {
+            var primeiraPosicaoFila = posioesAnalisar.Dequeue(); //Dequeue: remove e retorna o primeiro elemento(que entrou) da fila(Queue)
+
+            if (primeiraPosicaoFila == destino)
+            {
+                var rota = new List<(decimal latitude, decimal longitude)>();
+
+                while (primeiraPosicaoFila != posicaoInicialUsuario)
+                {
+                    rota.Add(primeiraPosicaoFila);
+                    primeiraPosicaoFila = posicoesEvizinhosVerificados[primeiraPosicaoFila]; //atualiza primeiraPosicao == indice da primeiraPosicao
+                }
+                rota.Reverse();
+
+                foreach (var posicao in rota)
+                {
+                    posicoes.Add(posicao);
+                }
+                break;
+            }
+
+            var vizinhos = new List<(decimal latitude, decimal longitude)>
+            {
+                (primeiraPosicaoFila.latitude + 0.000001M, primeiraPosicaoFila.longitude),
+                (primeiraPosicaoFila.latitude - 0.000001M, primeiraPosicaoFila.longitude),
+                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude - 0.000001M),
+                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude + 0.000001M),
+            };
+
+            foreach (var vizinho in vizinhos)
+            {
+                if (!VerificarParede(vizinho.latitude, vizinho.longitude) && !vizinhosValidos.Contains(vizinho))
+                {
+                    vizinhosValidos.Add(vizinho);
+                    posioesAnalisar.Enqueue(vizinho);
+                    posicoesEvizinhosVerificados[vizinho] = primeiraPosicaoFila; //chave-valor == vizinho-posicaoAnalisada
+                }
+            }
+        }
+
+        GerarRota();
+    }
+
+    public bool VerificarParede(decimal latitude, decimal longitude)
+    {
+        return paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude); //Any: vê se pelo menos um é igual
+    }
+
+    public void GerarRota()
+    {
+        var posicoesRota = new List<string>();
+
+        foreach (var posicao in posicoes)
+        {
+            var latitudePosicaoPX = ((int)(qtdColunas - (posicao.latitude * 1000000) * (-1))) * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
+            var longitudePosicaoPX = ((int)(qtdLinhas - (posicao.longitude * 1000000) * (-1))) * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
+
+            posicoesRota.Add($"{latitudePosicaoPX},{longitudePosicaoPX}");
+        }
+        _posicoesRota = string.Join(" ", posicoesRota);
+    }
+
+    public async Task VerificaSeChegouAoDestino(decimal latitudeAtual, decimal longitudeAtual)
+    {
+        VerificarCaminhoValido(latitudeDestino, longitudeDestino);
+
+        if (latitudeAtual == latitudeDestino && longitudeAtual == longitudeDestino)
+        {
+            await MostrarModal();
+        }
+    }
+
+    protected async Task MostrarModal()
+    {
+        await DialogService.OpenSideAsync<Components.Modal_Chegou>("", options: new SideDialogOptions
+            {
+                CloseDialogOnOverlayClick = true,
+                Position = DialogPosition.Bottom,
+                ShowMask = true,
+                CssClass = "modal-css"
+            });
+    }
+
+    public void ZerarRota()
+    {
+        posicoes.Clear();
+        _posicoesRota = null;
+    }
+}
