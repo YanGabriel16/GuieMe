@@ -3,23 +3,6 @@
 @inject ILocalService LocalService
 @inject DialogService DialogService
 
-@*<header>*@
-
-
-    @*<EditForm Model="usuarios">
-    <div>
-    <label>Latitude:</label>
-    <InputNumber @bind-Value="usuarios.LatitudeAtual"
-    @onclick="(latitudeAtual) => VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual)"></InputNumber>
-    </div>
-
-    <div>
-    <label>Longitude:</label>
-    <InputNumber @bind-Value="usuarios.LongitudeAtual"
-    @onclick="(longitudeAtual) => VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual)"></InputNumber>
-    </div>
-    </EditForm>*@
-@*</header>*@
 <div class="header">
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
@@ -35,8 +18,11 @@
         </RadzenDropDown>
     </div>
 
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+    </div>
     <div class="rz-p-xl-12 rz-text-align-center">
-        <RadzenButton Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        <RadzenButton Click=@(args => OnClickVoltarCheckpoint()) Text="Voltar Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
     </div>
 </div>
 <div class="mapa-container">
@@ -45,40 +31,36 @@
     </svg>
 
     <div class="mapa">
-        @for (decimal longitude = longitudeMinimaMapa; longitude <= longitudeMaximaMapa; longitude += 0.000001M)
+        @foreach (var longitude in Enumerable.Range(0, qtdLinhas))
         {
-            @for (decimal latitude = latitudeMinimaMapa; latitude <= latitudeMaximaMapa; latitude += 0.000001M)
+            @foreach (var latitude in Enumerable.Range(0, qtdColunas))
             {
                 var posicao = $"{latitude}, {longitude}"; //momentaneo
                 var tipo = "";
 
-                @foreach (var local in locaisNaoAcessiveis)
+                @foreach (var local in locais)
                 {
-                    int latitudePX = (int)(qtdColunas - ((latitude * 1000000) * -1));
-                    int longitudePX = (int)(qtdLinhas - ((longitude * 1000000) * -1));
-
-                    @*melhorar essa lógica de centralzar*@
-                    if (latitude == local.LatitudeEntrada && longitude == local.LongitudeEntrada)
+                    if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
                     {
                         tipo = "entrada";
-                        <div class="loc_entrada" data-text="@local.Nome" style="left: @((latitudePX * tamanhoPosicaoPX) - (tamanhoPosicaoPX / 6))px;
-                                                                                 top: @((longitudePX * tamanhoPosicaoPX) - ((tamanhoPosicaoPX / 3) * 2))px;"></div>
+                        <div class="loc_entrada" data-text="@local.Nome" style="left: @(latitude * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
+                            top: @(longitude * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
                     }
                     else
                     {
-                        if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude <= local.LongitudeMin && longitude >= local.LongitudeMax) ||
-                        (latitude <= local.LatitudeMin && latitude >= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
+                        if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude >= local.LongitudeMin && longitude <= local.LongitudeMax) ||
+                            (latitude >= local.LatitudeMin && latitude <= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
                         {
                             tipo = "parede";
-                            paredes.Add(new Tuple<decimal, decimal>(latitude, longitude));
+                            paredes.Add(new Tuple<int, int>(latitude, longitude));
                         }
                     }
                 }
-                <div class="posicao @tipo"> @*@posicao*@ </div>
+                <div class="posicao @tipo"> @posicao </div>
             }
         }
-        <div class="pontoAtualUsuario" style="left: @((((int)(qtdColunas - (usuarios.LatitudeAtual * 1000000) * -1)) * tamanhoPosicaoPX) - (tamanhoPosicaoPX / 6))px;
-                                               top: @((((int)(qtdLinhas - (usuarios.LongitudeAtual * 1000000) * -1)) * tamanhoPosicaoPX) - ((tamanhoPosicaoPX / 3) * 2))px;"></div>
+        <div class="pontoAtualUsuario" style="left: @(usuarios.LatitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
+                                        top: @(usuarios.LongitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
     </div>
 </div>
 
@@ -88,7 +70,7 @@
         grid-template-columns: repeat(@qtdColunas, @(tamanhoPosicaoPX)px);
         grid-template-rows: repeat(@qtdLinhas, @(tamanhoPosicaoPX)px);
         position: absolute;
-        transform: translate(@(qtdColunas - usuarios.LatitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + larguraTela / 2)px, @(qtdLinhas - usuarios.LongitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + alturaTela / 2)px);
+        transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);
         margin: 10vh 10vw;
         padding-right: 45vw;
         z-index: 1;
@@ -98,22 +80,15 @@
         width: @(tamanhoPosicaoPX * qtdColunas)px;
         height: @(tamanhoPosicaoPX * qtdLinhas)px;
         position: absolute;
-        transform: translate(@(qtdColunas - usuarios.LatitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + larguraTela / 2)px, @(qtdLinhas - usuarios.LongitudeAtual * 1000000 * -1 * -tamanhoPosicaoPX + alturaTela / 2)px);
+        transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);
         margin: 10vh 10vw;
         z-index: 2;
     }
 </style>
 
 @code {
-    static decimal latitudeMinimaMapa { get; set; } = -0.000030M; //-23.459295M;
-    static decimal longitudeMinimaMapa { get; set; } = -0.000015M; //-47.419960M;
-
-    static decimal latitudeMaximaMapa { get; set; } = -0.000001M; //-23.459140M;
-    static decimal longitudeMaximaMapa { get; set; } = -0.000001M; //-47.419875M;
-
-
-    static int qtdColunas { get; set; } = (int)((latitudeMaximaMapa - latitudeMinimaMapa) * 1000000) + 1;
-    static int qtdLinhas { get; set; } = (int)((longitudeMaximaMapa - longitudeMinimaMapa) * 1000000) + 1;
+    static int qtdColunas { get; set; } = 30;
+    static int qtdLinhas { get; set; } = 15;
 
     static int tamanhoPosicaoPX { get; set; } = 30; //50
 
@@ -125,27 +100,28 @@
 
 
     List<Local> locaisAcessiveis;
-    List<Local> locaisNaoAcessiveis;
-    List<Tuple<decimal, decimal>> paredes;
+    List<Local> locais;
+    List<Tuple<int, int>> paredes;
 
     public string _posicoesRota { get; set; }
 
-    public decimal latitudePartida { get; set; }
-    public decimal longitudePartida { get; set; }
+    public int latitudePartida { get; set; }
+    public int longitudePartida { get; set; }
 
-    public decimal latitudeDestino { get; set; }
-    public decimal longitudeDestino { get; set; }
+    public int latitudeDestino { get; set; }
+    public int longitudeDestino { get; set; }
 
     public Usuario usuarios = new Usuario();
     public Local localSelecionadoDestino = new Local();
     public Local localSelecionadoPartida = new Local();
 
-    public List<(decimal latitude, decimal longitude)> posicoes { get; set; } = new List<(decimal, decimal)>();
+    public List<(int latitude, int longitude)> posicoes { get; set; } = new List<(int, int)>();
+    public List<(int latitude, int longitude)> posicoesAnterior { get; set; } = new List<(int, int)>();
 
     protected override async Task OnInitializedAsync()
     {
-        locaisNaoAcessiveis = LocalService.Locais();
-        locaisAcessiveis = locaisNaoAcessiveis.FindAll(local => local.LocalAcessivel == true);
+        locais = LocalService.Locais();
+        locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
         paredes = LocalService.Paredes();
 
         if (posicoes.Count > 0)
@@ -156,16 +132,71 @@
         //StateHasChanged(); notifica o componente para atualizar a interface com as alterações mais recentes.
     }
 
+    public void OnClickCheckpoint()
+    {
+        foreach (var posicao in posicoes)
+        {
+            foreach(var local in locaisAcessiveis)
+            {
+                bool latitudeCheckpoint = posicao.latitude == local.LatitudeEntrada
+                    || posicao.latitude + 1 == local.LatitudeEntrada
+                    || posicao.latitude - 1 == local.LatitudeEntrada;
+
+                bool longitudeCheckpoint = posicao.longitude == local.LongitudeEntrada
+                    || posicao.longitude + 1 == local.LongitudeEntrada
+                    || posicao.longitude - 1 == local.LongitudeEntrada;
+
+                if (latitudeCheckpoint && longitudeCheckpoint)
+                {
+                    if (local.Id != valorSelecionadoLocalPartida)
+                    {
+                        posicoesAnterior.Add((usuarios.LongitudeAtual, usuarios.LatitudeAtual));
+                        usuarios.LongitudeAtual = local.LongitudeEntrada;
+                        usuarios.LatitudeAtual = local.LatitudeEntrada;
+                        valorSelecionadoLocalPartida = local.Id;
+                        SelectLocalPartida(local.Id);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    public void OnClickVoltarCheckpoint()
+    {
+        if (posicoesAnterior.Count > 0)
+        {            
+            var posicaoAnterior = posicoesAnterior.FindLast(o => o.latitude != null);
+            var localAnterior = locaisAcessiveis.Find(o => o.LatitudeEntrada == posicaoAnterior.latitude
+                    && o.LongitudeEntrada == posicaoAnterior.longitude);
+            if (localAnterior != null)
+            {
+                posicoesAnterior.Remove(posicaoAnterior);
+                usuarios.LongitudeAtual = posicaoAnterior.longitude;
+                usuarios.LatitudeAtual = posicaoAnterior.latitude;
+                valorSelecionadoLocalPartida = localAnterior.Id;
+                SelectLocalPartida(localAnterior.Id);
+            }
+        }
+    }
+
     public void SelectLocalPartida(object id_Local)
     {
         if (id_Local != null)
         {
-            localSelecionadoPartida = locaisNaoAcessiveis.Find(local => local.Id == (int)id_Local);
+            localSelecionadoPartida = locais.Find(local => local.Id == (int)id_Local);
 
             if (localSelecionadoPartida != null)
             {
                 latitudePartida = localSelecionadoPartida.LatitudeEntrada;
                 longitudePartida = localSelecionadoPartida.LongitudeEntrada;
+
+                usuarios.LatitudeAtual = localSelecionadoPartida.LatitudeEntrada;
+                usuarios.LongitudeAtual = localSelecionadoPartida.LongitudeEntrada;
+            }
+
+            if (latitudeDestino != 0 && longitudeDestino != 0)
+            {
+                VerificarCaminhoValido(latitudeDestino, longitudeDestino);
             }
         }
     }
@@ -174,7 +205,7 @@
     {
         if (id_Local != null)
         {
-            localSelecionadoDestino = locaisNaoAcessiveis.Find(local => local.Id == (int)id_Local);
+            localSelecionadoDestino = locais.Find(local => local.Id == (int)id_Local);
 
             if (localSelecionadoDestino != null)
             {
@@ -196,17 +227,19 @@
         }
     }
 
-    public void VerificarCaminhoValido(decimal latitudeDestino, decimal longitudeDestino)
+    public void VerificarCaminhoValido(int latitudeDestino, int longitudeDestino)
     {
         ZerarRota();
 
-        var posicaoInicialUsuario = (0M, 0M); /*ver se deixo 0 mesmo*/
+        var posicaoInicialUsuario = (0, 0); /*ver se deixo 0 mesmo*/
 
         if (localSelecionadoPartida != null)
         {
             if (localSelecionadoPartida.Id != 0)
             {
                 posicaoInicialUsuario = (latitudePartida, longitudePartida);
+                usuarios.LatitudeAtual = latitudePartida;
+                usuarios.LongitudeAtual = longitudePartida;            
             }
             else
             {
@@ -220,9 +253,9 @@
 
         var destino = (latitudeDestino, longitudeDestino);
 
-        var vizinhosValidos = new HashSet<(decimal, decimal)>(); //HashSet: não permite elementos repitidos na lista
-        var posioesAnalisar = new Queue<(decimal latitude, decimal longitude)>(); //Queue: fila, os elementos entram e saem em uma ordem especifica
-        var posicoesEvizinhosVerificados = new Dictionary<(decimal, decimal), (decimal, decimal)>(); //Dictionary: armazena chave-valor
+        var vizinhosValidos = new HashSet<(int, int)>(); //HashSet: não permite elementos repitidos na lista
+        var posioesAnalisar = new Queue<(int latitude, int longitude)>(); //Queue: fila, os elementos entram e saem em uma ordem especifica
+        var posicoesEvizinhosVerificados = new Dictionary<(int, int), (int, int)>(); //Dictionary: armazena chave-valor
 
         posioesAnalisar.Enqueue(posicaoInicialUsuario); //Enqueue: adiciona um elemento ao final da fila(Queue)
 
@@ -232,7 +265,7 @@
 
             if (primeiraPosicaoFila == destino)
             {
-                var rota = new List<(decimal latitude, decimal longitude)>();
+                var rota = new List<(int latitude, int longitude)>();
 
                 while (primeiraPosicaoFila != posicaoInicialUsuario)
                 {
@@ -248,12 +281,12 @@
                 break;
             }
 
-            var vizinhos = new List<(decimal latitude, decimal longitude)>
+            var vizinhos = new List<(int latitude, int longitude)>
             {
-                (primeiraPosicaoFila.latitude + 0.000001M, primeiraPosicaoFila.longitude),
-                (primeiraPosicaoFila.latitude - 0.000001M, primeiraPosicaoFila.longitude),
-                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude - 0.000001M),
-                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude + 0.000001M),
+                (primeiraPosicaoFila.latitude + 1, primeiraPosicaoFila.longitude),
+                (primeiraPosicaoFila.latitude - 1, primeiraPosicaoFila.longitude),
+                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude - 1),
+                (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude + 1),
             };
 
             foreach (var vizinho in vizinhos)
@@ -270,7 +303,7 @@
         GerarRota();
     }
 
-    public bool VerificarParede(decimal latitude, decimal longitude)
+    public bool VerificarParede(int latitude, int longitude)
     {
         return paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude); //Any: vê se pelo menos um é igual
     }
@@ -281,15 +314,15 @@
 
         foreach (var posicao in posicoes)
         {
-            var latitudePosicaoPX = ((int)(qtdColunas - (posicao.latitude * 1000000) * (-1))) * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
-            var longitudePosicaoPX = ((int)(qtdLinhas - (posicao.longitude * 1000000) * (-1))) * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
+            var latitudePosicaoPX = posicao.latitude * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
+            var longitudePosicaoPX = posicao.longitude * tamanhoPosicaoPX + tamanhoPosicaoPX / 2;
 
             posicoesRota.Add($"{latitudePosicaoPX},{longitudePosicaoPX}");
         }
         _posicoesRota = string.Join(" ", posicoesRota);
     }
 
-    public async Task VerificaSeChegouAoDestino(decimal latitudeAtual, decimal longitudeAtual)
+    public async Task VerificaSeChegouAoDestino(int latitudeAtual, int longitudeAtual)
     {
         VerificarCaminhoValido(latitudeDestino, longitudeDestino);
 
