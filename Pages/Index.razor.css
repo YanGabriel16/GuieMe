@@ -74,14 +74,14 @@
     z-index: 5;
 }
 
-.mapa {
+/*.mapa {
     align-content: center;
 }
 
 svg {
     align-content: center;
 }
-
+*/
 
 /*computador*/
 /*@media (min-width: 1009px) and (max-width: 1366px) and (min-height: 486px) and (max-height: 698px) {

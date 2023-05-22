@@ -9,20 +9,21 @@ namespace GuieMe.Services
         {
             List<Local> locais = new List<Local>
             {
-                new Local { Id = 1, Nome = "Secretaria Veteranos", LatitudeMin = -0.000003M, LongitudeMin = -0.000001M, LatitudeMax = -0.000008M, LongitudeMax = -0.000005M, LatitudeEntrada = -0.000005M, LongitudeEntrada = -0.000005M, LocalAcessivel = true},
-                new Local { Id = 2, Nome = "Papelaria", LatitudeMin = -00.000009M, LongitudeMin = -00.000001M, LatitudeMax = -00.000017M, LongitudeMax = -00.000005M, LatitudeEntrada = -00.000012M, LongitudeEntrada = -00.000005M, LocalAcessivel = true},
-                new Local { Id = 3, Nome = "Cafeteria Expresso", LatitudeMin = -00.000018M, LongitudeMin = -00.000001M, LatitudeMax = -00.000028M, LongitudeMax = -00.000004M, LatitudeEntrada = -00.000026M, LongitudeEntrada = -00.000004M, LocalAcessivel = true},
-                new Local { Id = 4, Nome = "Secretaria Calouros", LatitudeMin = -00.000001M, LongitudeMin = -00.000009M, LatitudeMax = -00.000007M, LongitudeMax = -00.000013M, LatitudeEntrada = -00.000007M, LongitudeEntrada = -00.000010M, LocalAcessivel = true},
-                new Local { Id = 5, Nome = "Coordenação", LatitudeMin = -00.000014M, LongitudeMin = -00.000008M, LatitudeMax = -00.000019M, LongitudeMax = -00.000013M, LatitudeEntrada = -00.000014M, LongitudeEntrada = -00.000010M, LocalAcessivel = true},
-                new Local { Id = 6, Nome = "Cafeteria Mozi", LatitudeMin = -00.000020M, LongitudeMin = -00.000009M, LatitudeMax = -00.000027M, LongitudeMax = -00.000013M, LatitudeEntrada = -00.000027M, LongitudeEntrada = -00.000011M, LocalAcessivel = true},
-                //new Local { Id = 7, Nome = "Predio Principal", LatitudeMin = -0.000001M, LongitudeMin = -00.000001M, LatitudeMax = -00.000050M, LongitudeMax = -00.000050M, LatitudeEntrada = -00.000050M, LongitudeEntrada = -00.000045M, LocalAcessivel = false},
+                new Local { Id = 0, Nome = "Predio Principal Entrada", LatitudeMin = 0, LongitudeMin = 0, LatitudeMax = 0, LongitudeMax = 0, LatitudeEntrada = 0, LongitudeEntrada = 0, LocalAcessivel = true},
+                new Local { Id = 1, Nome = "Secretaria Veteranos", LatitudeMin = 3, LongitudeMin = 1, LatitudeMax = 8, LongitudeMax = 5, LatitudeEntrada = 5, LongitudeEntrada = 5, LocalAcessivel = true},
+                new Local { Id = 2, Nome = "Papelaria", LatitudeMin = 9, LongitudeMin = 1, LatitudeMax = 17, LongitudeMax = 5, LatitudeEntrada = 12, LongitudeEntrada = 5, LocalAcessivel = true},
+                new Local { Id = 3, Nome = "Cafeteria Expresso", LatitudeMin = 18, LongitudeMin = 1, LatitudeMax = 28, LongitudeMax = 4, LatitudeEntrada = 26, LongitudeEntrada = 4, LocalAcessivel = true},
+                new Local { Id = 4, Nome = "Secretaria Calouros", LatitudeMin = 1, LongitudeMin = 9, LatitudeMax = 7, LongitudeMax = 13, LatitudeEntrada = 7, LongitudeEntrada = 10, LocalAcessivel = true},
+                new Local { Id = 5, Nome = "Coordenação", LatitudeMin = 14, LongitudeMin = 8, LatitudeMax = 19, LongitudeMax = 13, LatitudeEntrada = 14, LongitudeEntrada = 10, LocalAcessivel = true},
+                new Local { Id = 6, Nome = "Cafeteria Mozi", LatitudeMin = 20, LongitudeMin = 9, LatitudeMax = 27, LongitudeMax = 13, LatitudeEntrada = 27, LongitudeEntrada = 11, LocalAcessivel = true},
+                //new Local { Id = 7, Nome = "Predio Principal", LatitudeMin = 1, LongitudeMin = 1, LatitudeMax = 50, LongitudeMax = 50, LatitudeEntrada = 50, LongitudeEntrada = 45, LocalAcessivel = false},
             };
             return locais.OrderBy(o => o.Nome).ToList();
         }
 
-        public List<Tuple<decimal, decimal>> Paredes()
+        public List<Tuple<int, int>> Paredes()
         {
-            List<Tuple<decimal, decimal>> paredes = new List<Tuple<decimal, decimal>>();
+            List<Tuple<int, int>> paredes = new List<Tuple<int, int>>();
             return paredes;
         }
     }
