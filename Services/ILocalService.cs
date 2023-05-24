@@ -6,5 +6,6 @@ namespace GuieMe.Services
     {
         List<Local> Locais();
         List<Tuple<int, int>> Paredes();
+        Task<Coordenadas> GetLocalizacaoAtual(CancellationToken cancellationToken);
     }
 }

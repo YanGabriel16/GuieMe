@@ -118,6 +118,13 @@
     public List<(int latitude, int longitude)> posicoes { get; set; } = new List<(int, int)>();
     public List<(int latitude, int longitude)> posicoesAnterior { get; set; } = new List<(int, int)>();
 
+    [Parameter]
+    public EventCallback<Coordenadas> OnGeoLocationRetrived { get; set; }
+
+    private Coordenadas CoordenadaAtual { get; set; } = new Coordenadas();
+
+    private bool IsLoading { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         locais = LocalService.Locais();
@@ -128,6 +135,18 @@
         {
             await VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual);
         }
+
+        IsLoading = true;
+        var loc = await LocalService.GetLocalizacaoAtual(new System.Threading.CancellationTokenSource().Token);
+
+        CoordenadaAtual.Latitude = loc.Latitude;
+        CoordenadaAtual.Longitude = loc.Longitude;
+        CoordenadaAtual.Altitude = loc.Altitude;
+
+        VerificarUsuarioNaUniversidade(CoordenadaAtual);
+
+        await OnGeoLocationRetrived.InvokeAsync(loc);
+        IsLoading = false;
 
         //StateHasChanged(); notifica o componente para atualizar a interface com as alterações mais recentes.
     }
@@ -330,6 +349,20 @@
         {
             await MostrarModal();
         }
+    }
+
+    public bool VerificarUsuarioNaUniversidade(Coordenadas localUsuario)
+    {
+        Coordenadas universidade = new Coordenadas();
+        bool latitudeCheck = localUsuario.Latitude == universidade.Latitude
+            || localUsuario.Latitude <= universidade.Latitude + 00.0000100
+            || localUsuario.Latitude >= universidade.Latitude - 00.0000100;
+
+        bool longitudeCheck = localUsuario.Longitude == universidade.Longitude
+            || localUsuario.Longitude <= universidade.Longitude + 00.0000100
+            || localUsuario.Longitude >= universidade.Longitude - 00.0000100;
+
+        return latitudeCheck && longitudeCheck;
     }
 
     protected async Task MostrarModal()
