@@ -66,6 +66,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspose.HTML" Version="23.7.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Radzen.Blazor" Version="4.10.1" />
     </ItemGroup>
