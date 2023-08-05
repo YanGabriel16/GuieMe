@@ -1,11 +1,10 @@
 ﻿using GuieMe.Enums;
-using GuieMe.Models;
 
-namespace GuieMe.Services
+namespace GuieMe.Interfaces
 {
     public interface IObjetivoService
     {
         void ConcluirObjetivo(int idObjetivo, Curso curso);
-        bool GerarCertificado();
+        Task<bool> GerarCertificado();
     }
 }

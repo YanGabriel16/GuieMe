@@ -2,6 +2,7 @@
 using Aspose.Html.Converters;
 using Aspose.Html.Saving;
 using GuieMe.Enums;
+using GuieMe.Interfaces;
 using GuieMe.Models;
 using System.Linq;
 
@@ -14,17 +15,17 @@ namespace GuieMe.Services
         {
             _usuarioService = usuarioService;
         }
-        public void ConcluirObjetivo(int idObjetivo, Curso curso)
+        public async void ConcluirObjetivo(int idObjetivo, Curso curso)
         {
             CursoObjetivos CursoObjetivos = new CursoObjetivos(); //TODO: Pegar da listagem de objetivos
-            Usuario usuario = _usuarioService.GetUsuario();
+            Usuario usuario = await _usuarioService.GetUsuario();
             Objetivo objetivo = CursoObjetivos.Objetivos.Find(o => o.Id == idObjetivo && o.Curso == curso);
             if (objetivo != null) usuario.ObjetivosConcluidos.Add(objetivo);
         }
 
-        public bool GerarCertificado()
+        public async Task<bool> GerarCertificado()
         {
-            Usuario usuario = _usuarioService.GetUsuario();
+            Usuario usuario = await _usuarioService.GetUsuario();
 
             if (!usuario.TodosObjetivosForamConcluidos) return false;
 

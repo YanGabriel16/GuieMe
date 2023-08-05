@@ -2,6 +2,7 @@
 using GuieMe.Data;
 using GuieMe.Services;
 using Radzen;
+using GuieMe.Interfaces;
 
 namespace GuieMe;
 
@@ -25,7 +26,10 @@ public static class MauiProgram
 #endif
 
 		builder.Services.AddSingleton<WeatherForecastService>();
+        builder.Services.AddScoped<IDataStorageService, DataStorageService>();
         builder.Services.AddScoped<ILocalService, LocalService>();
+        builder.Services.AddScoped<IObjetivoService, ObjetivoService>();
+        builder.Services.AddScoped<IUsuarioService, UsuarioService>();
         builder.Services.AddBlazorWebViewDeveloperTools();
 
         builder.Services.AddScoped<DialogService>();

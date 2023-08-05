@@ -1,28 +1,43 @@
 ﻿using GuieMe.Enums;
+using GuieMe.Helpers;
+using GuieMe.Interfaces;
 using GuieMe.Models;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace GuieMe.Services
 {
     public class UsuarioService : IUsuarioService
     {
-        public void AtualizarDataCertificacao(DateTime date)
+        private readonly IDataStorageService _storageService;
+        public UsuarioService(IDataStorageService storageService)
         {
-            Usuario usuario = GetUsuario();
-            usuario.CertificadoData = date;
+            _storageService = storageService;
         }
 
-        public void AtualizarUsuario(string nome, string sobrenome, Pronome pronome, Curso curso)
+        public async void AtualizarDataCertificacao(DateTime date)
         {
-            Usuario usuarioCache = GetUsuario();
+            Usuario usuario = await GetUsuario();
+            usuario.CertificadoData = date;
+
+            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+        }
+
+        public async void AtualizarUsuario(string nome, string sobrenome, Pronome pronome, Curso curso)
+        {
+            Usuario usuarioCache = await GetUsuario();
             Usuario usuario = usuarioCache != null ? usuarioCache : new Usuario();
 
             usuario.Nome = nome;
             usuario.Sobrenome = sobrenome;
             usuario.Pronome = pronome;
             usuario.Curso = curso;
+
+            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
         }
 
-        public Usuario GetUsuario() => new Usuario(); //TODO: Pegar do cache do usuario registrado
+        public async Task<Usuario> GetUsuario()
+            => (await _storageService.GetValueAsync(Constants.UsuarioKey)) as Usuario;
+
     }
 }

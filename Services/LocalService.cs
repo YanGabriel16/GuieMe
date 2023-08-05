@@ -1,4 +1,5 @@
-﻿using GuieMe.Models;
+﻿using GuieMe.Interfaces;
+using GuieMe.Models;
 using System.Linq;
 
 namespace GuieMe.Services
