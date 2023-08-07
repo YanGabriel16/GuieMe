@@ -1,7 +1,6 @@
 ﻿using Aspose.Html;
 using Aspose.Html.Converters;
 using Aspose.Html.Saving;
-using GuieMe.Enums;
 using GuieMe.Interfaces;
 using GuieMe.Models;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace GuieMe.Services
         {
             CursoObjetivos CursoObjetivos = new CursoObjetivos(); //TODO: Pegar da listagem de objetivos
             Usuario usuario = await _usuarioService.GetUsuario();
-            Objetivo objetivo = CursoObjetivos.Objetivos.Find(o => o.Id == idObjetivo && o.Curso == curso);
+            Objetivo objetivo = CursoObjetivos.Objetivos.Find(o => o.Id == idObjetivo && o.Curso.Id == curso.Id);
             if (objetivo != null) usuario.ObjetivosConcluidos.Add(objetivo);
         }
 
@@ -27,7 +26,8 @@ namespace GuieMe.Services
         {
             Usuario usuario = await _usuarioService.GetUsuario();
 
-            if (!usuario.TodosObjetivosForamConcluidos) return false;
+            if (usuario.TodosObjetivosForamConcluidos.HasValue 
+                && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
 
             int horas = usuario.ObjetivosConcluidos.Count();
             string cursoNome = nameof(usuario.Curso);
@@ -45,7 +45,7 @@ com uma carga horaria de {horas}.
 
             Converter.ConvertHTML(certificado, new PdfSaveOptions(), savePath);
 
-            _usuarioService.AtualizarDataCertificacao(data);
+            _usuarioService.AtualizarDataCertificacao();
 
             return true;
         }

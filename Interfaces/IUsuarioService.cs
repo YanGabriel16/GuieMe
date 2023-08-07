@@ -1,12 +1,11 @@
-﻿using GuieMe.Enums;
-using GuieMe.Models;
+﻿using GuieMe.Models;
 
 namespace GuieMe.Interfaces
 {
     public interface IUsuarioService
     {
-        void AtualizarUsuario(string nome, string sobrenome, Pronome pronome, Curso curso);
-        void AtualizarDataCertificacao(DateTime date);
+        void AtualizarUsuario(Usuario usuario);
+        void AtualizarDataCertificacao();
         Task<Usuario> GetUsuario();
     }
 }

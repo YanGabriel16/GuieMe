@@ -8,7 +8,6 @@ namespace GuieMe.Interfaces
 {
     public interface IDataStorageService
     {
-        Task<object> GetValueAsync(string key);
         Task SetValueAsync(string key, object value);
     }
 }

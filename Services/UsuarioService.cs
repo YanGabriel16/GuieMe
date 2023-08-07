@@ -1,9 +1,7 @@
-﻿using GuieMe.Enums;
-using GuieMe.Helpers;
+﻿using GuieMe.Helpers;
 using GuieMe.Interfaces;
 using GuieMe.Models;
-using System.Linq;
-using System.Reflection.Metadata;
+using System.Text.Json;
 
 namespace GuieMe.Services
 {
@@ -15,29 +13,23 @@ namespace GuieMe.Services
             _storageService = storageService;
         }
 
-        public async void AtualizarDataCertificacao(DateTime date)
+        public async void AtualizarDataCertificacao()
         {
             Usuario usuario = await GetUsuario();
-            usuario.CertificadoData = date;
+            //usuario.CertificadoData = DateTime.Now;
 
             await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
         }
 
-        public async void AtualizarUsuario(string nome, string sobrenome, Pronome pronome, Curso curso)
-        {
-            Usuario usuarioCache = await GetUsuario();
-            Usuario usuario = usuarioCache != null ? usuarioCache : new Usuario();
-
-            usuario.Nome = nome;
-            usuario.Sobrenome = sobrenome;
-            usuario.Pronome = pronome;
-            usuario.Curso = curso;
-
-            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
-        }
+        public async void AtualizarUsuario(Usuario usuario)
+            => await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
 
         public async Task<Usuario> GetUsuario()
-            => (await _storageService.GetValueAsync(Constants.UsuarioKey)) as Usuario;
-
+        {
+            var result = await SecureStorage.GetAsync(Constants.UsuarioKey);
+            var usuario = JsonSerializer.Deserialize<Usuario>(result);
+            if (usuario != null) return usuario; 
+            else return new Usuario();
+        }
     }
 }

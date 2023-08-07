@@ -1,4 +1,4 @@
-﻿using GuieMe.Enums;
+﻿using GuieMe.Models;
 
 namespace GuieMe.Interfaces
 {

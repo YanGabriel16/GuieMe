@@ -1,0 +1,68 @@
+﻿@page "/login"
+
+@using GuieMe.Interfaces;
+
+@inject IHelperService HelperService;
+@inject IUsuarioService UsuarioService;
+
+<div class="header">
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <h2>Login</h2>
+    </div>
+
+    @if (usuarioLogado != null)
+    {
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenFormField Text="Nome" Variant="@variant">
+                <RadzenTextBox @bind-Value="@usuarioLogado.Nome" />
+            </RadzenFormField>
+        </div>
+
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenFormField Text="Sobrenome" Variant="@variant">
+                <RadzenTextBox @bind-Value="@usuarioLogado.Sobrenome" />
+            </RadzenFormField>
+        </div>
+
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenFormField Text="RA" Variant="@variant">
+                <RadzenTextBox @bind-Value="@usuarioLogado.RA" />
+            </RadzenFormField>
+        </div>
+
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenDropDown class="rz-border-radius-10" Data="Cursos" TextProperty="Nome" ValueProperty="Id" @bind-Value=@usuarioLogado.Curso.Id AllowClear="true"
+                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o curso"
+                            Change=@(x => SelectCurso(x)) Style="width: 95%; max-width: 400px;">
+            </RadzenDropDown>
+        </div>
+
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenButton Click=@(args => OnClickLogar()) Text="Logar" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        </div>
+    }
+</div>
+
+
+@code {
+    Variant variant = Variant.Outlined;
+    List<Curso> Cursos;
+    Usuario usuarioLogado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuarioLogado = await UsuarioService.GetUsuario();
+        Cursos = HelperService.GetCursos();
+    }
+
+    public void OnClickLogar()
+        => UsuarioService.AtualizarUsuario(usuarioLogado);
+    
+
+
+    public void SelectCurso(object cursoId)
+    {
+        if (cursoId != null)
+            usuarioLogado.Curso = Cursos.FirstOrDefault(x => x.Id == (int)cursoId);
+    }
+}
