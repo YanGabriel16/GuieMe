@@ -1,10 +1,15 @@
 ﻿@page "/"
+@using GuieMe.Components;
 @using GuieMe.Interfaces;
 
 @inject ILocalService LocalService
 @inject DialogService DialogService
 
 <div class="header">
+    <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
+        <MenuComponent></MenuComponent>
+    </div>
+
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de partida"

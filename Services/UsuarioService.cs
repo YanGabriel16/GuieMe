@@ -16,7 +16,6 @@ namespace GuieMe.Services
         public async void AtualizarDataCertificacao()
         {
             Usuario usuario = await GetUsuario();
-            //usuario.CertificadoData = DateTime.Now;
 
             await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
         }
@@ -27,9 +26,14 @@ namespace GuieMe.Services
         public async Task<Usuario> GetUsuario()
         {
             var result = await SecureStorage.GetAsync(Constants.UsuarioKey);
+            if (result == null) 
+                return new Usuario();
+
             var usuario = JsonSerializer.Deserialize<Usuario>(result);
-            if (usuario != null) return usuario; 
-            else return new Usuario();
+            if (usuario == null) 
+                return new Usuario();
+            
+            return usuario;
         }
     }
 }

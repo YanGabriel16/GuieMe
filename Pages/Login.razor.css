@@ -1,0 +1,11 @@
+﻿body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header {
+    padding: 4vw 2vw 4vw 2vw;
+    width: 100vw;
+    z-index: 6;
+    background-color: #263A7F;
+}

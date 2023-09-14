@@ -4,6 +4,7 @@
 
 @inject IHelperService HelperService;
 @inject IUsuarioService UsuarioService;
+@inject NavigationManager Navigation
 
 <div class="header">
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
@@ -38,7 +39,11 @@
         </div>
 
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenButton Click=@(args => OnClickLogar()) Text="Logar" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+            <RadzenButton Click=@(args => OnClickLogar()) Text="Logar" Icon="account_circle" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        </div>
+
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenButton Click=@(args => OnClickVoltar()) Text="Voltar" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
         </div>
     }
 </div>
@@ -56,10 +61,14 @@
     }
 
     public void OnClickLogar()
-        => UsuarioService.AtualizarUsuario(usuarioLogado);
-    
+    {
+        UsuarioService.AtualizarUsuario(usuarioLogado);
+        Navigation.NavigateTo("/");
+    }
 
-
+    public void OnClickVoltar()
+        => Navigation.NavigateTo("/");
+   
     public void SelectCurso(object cursoId)
     {
         if (cursoId != null)
