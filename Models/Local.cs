@@ -4,6 +4,7 @@ public class Local
 {
     public int Id { get; set; }
     public string Nome { get; set; }
+    public string Descricao { get; set; }
     public int LatitudeMin { get; set; }
     public int LatitudeMax { get; set; }
     public int LongitudeMin { get; set; }

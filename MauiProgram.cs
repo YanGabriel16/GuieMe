@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using GuieMe.Data;
 using GuieMe.Services;
 using Radzen;
+using GuieMe.Interfaces;
 
 namespace GuieMe;
 
@@ -24,9 +24,12 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		builder.Services.AddSingleton<WeatherForecastService>();
+        builder.Services.AddScoped<IDataStorageService, DataStorageService>();
         builder.Services.AddScoped<ILocalService, LocalService>();
-        builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddScoped<IObjetivoService, ObjetivoService>();
+        builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+		builder.Services.AddScoped<IHelperService, HelperService>();
+        builder.Services.AddBlazorWebViewDeveloperTools();//TODO: Retirar 
 
         builder.Services.AddScoped<DialogService>();
         builder.Services.AddScoped<NotificationService>();

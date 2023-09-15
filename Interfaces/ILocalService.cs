@@ -1,6 +1,6 @@
 ﻿using GuieMe.Models;
 
-namespace GuieMe.Services
+namespace GuieMe.Interfaces
 {
     public interface ILocalService
     {
