@@ -8,9 +8,11 @@ namespace GuieMe.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IDataStorageService _storageService;
-        public UsuarioService(IDataStorageService storageService)
+        private readonly IHelperService _helperService;
+        public UsuarioService(IDataStorageService storageService, IHelperService helperService)
         {
             _storageService = storageService;
+            _helperService = helperService;
         }
 
         public async void AtualizarDataCertificacao()
@@ -32,6 +34,8 @@ namespace GuieMe.Services
             var usuario = JsonSerializer.Deserialize<Usuario>(result);
             if (usuario == null) 
                 return new Usuario();
+
+            usuario.Curso = _helperService.GetCursoUsuario(usuario.Curso.Id);
             
             return usuario;
         }
