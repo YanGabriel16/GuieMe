@@ -22,5 +22,5 @@ public class Usuario
     public int LongitudeAtual { get; set; }
     public List<Objetivo> ObjetivosConcluidos { get; set; }
     public bool? TodosObjetivosForamConcluidos { get; set; }
-    //public DateTime? CertificadoData { get; set; }
+    public DateTime? CertificadoData { get; set; }
 }

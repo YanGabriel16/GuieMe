@@ -12,16 +12,19 @@ namespace GuieMe.Services
         private readonly IUsuarioService _usuarioService;
         private readonly IDataStorageService _storageService;
 
-        public ObjetivoService(IUsuarioService usuarioService, IDataStorageService storageService) 
+        public ObjetivoService(IUsuarioService usuarioService, IDataStorageService storageService)
         {
             _usuarioService = usuarioService;
             _storageService = storageService;
         }
-        public async void ConcluirObjetivo(int idObjetivo, Curso curso)
+        public async void ConcluirObjetivo(int idObjetivo)
         {
-            CursoObjetivos CursoObjetivos = new CursoObjetivos(); //TODO: Pegar da listagem de objetivos
             Usuario usuario = await _usuarioService.GetUsuario();
-            Objetivo objetivo = CursoObjetivos.Objetivos.Find(o => o.Id == idObjetivo && o.Curso.Id == curso.Id);
+
+            List<Objetivo> objetivos = GetObjetivos(usuario.Curso?.Id);
+
+            Objetivo objetivo = objetivos.FirstOrDefault(x => x.Id == idObjetivo);
+
             if (objetivo != null)
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
@@ -55,6 +58,22 @@ com uma carga horaria de {horas}.
             _usuarioService.AtualizarDataCertificacao();
 
             return true;
+        }
+
+        public List<Objetivo> GetObjetivos(int? cursoId)
+        {
+            var objetivos = new List<Objetivo>()
+            {
+                new Objetivo(0, 0, null, "Inicie reconhecendo o predio principal"),
+                new Objetivo(1, 1, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos veteranos pode resolver alguns (se você for um veterano(a))"),
+                new Objetivo(2, 4, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos calouros pode resolver alguns (se você for um calouro(a))"),
+                new Objetivo(3, 2, null, "As vezes é necessário uma lembrancinha academica ou até materiais academicos..."),
+                new Objetivo(4, 5, null, "Nem todos os problemas podemos resolver nas secretarias, as vezes você pode achar a solução aqui"),
+            };
+
+            objetivos = objetivos.Where(o => !o.CursoId.HasValue || o.CursoId.Value == cursoId).ToList();
+
+            return objetivos.Any() ? objetivos : new List<Objetivo>();
         }
     }
 }

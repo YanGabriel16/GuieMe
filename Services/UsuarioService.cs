@@ -18,12 +18,14 @@ namespace GuieMe.Services
         public async void AtualizarDataCertificacao()
         {
             Usuario usuario = await GetUsuario();
-
-            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+            usuario.CertificadoData = DateTime.Now;
+            AtualizarUsuario(usuario);
         }
 
         public async void AtualizarUsuario(Usuario usuario)
-            => await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+        {
+            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+        }
 
         public async Task<Usuario> GetUsuario()
         {
