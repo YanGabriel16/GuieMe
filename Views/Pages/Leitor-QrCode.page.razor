@@ -1,0 +1,27 @@
+﻿@page "/leitorQrCode"
+
+@using BlazorBarcodeScanner.ZXing.JS
+
+<div class="header">
+    <h3>Leitor_QrCode.page</h3>
+    <BarcodeReader Title="Scan Barcode from Camera"
+        StartCameraAutomatically="false"
+        ShowStart="true"
+        ShowReset="true"
+        ShowToggleTorch="true"
+        ShowVideoDeviceList="true"
+        VideoWidth="300"
+        VideoHeight="200"
+        OnBarcodeReceived="LocalReceivedBarcodeText" />
+    <RadzenLabel Text="@LocalBarcodeText" style="color: black;" class="align-text-center" />
+</div>
+
+@code {
+    private string LocalBarcodeText;
+
+    private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        this.LocalBarcodeText = args.BarcodeText;
+        StateHasChanged();
+    }
+}
