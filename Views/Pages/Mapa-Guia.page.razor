@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using GuieMe.Components;
+@using GuieMe.Views.Components;
 @using GuieMe.Interfaces;
 
 @inject ILocalService LocalService
@@ -7,7 +7,7 @@
 
 <div class="header">
     <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
-        <MenuComponent></MenuComponent>
+        <AppMenu_component></AppMenu_component>
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
@@ -340,7 +340,7 @@
 
     protected async Task MostrarModal()
     {
-        await DialogService.OpenSideAsync<Components.ModalChegada>("", options: new SideDialogOptions
+        await DialogService.OpenSideAsync<Views.Components.ModalChegada_component>("", options: new SideDialogOptions
             {
                 CloseDialogOnOverlayClick = true,
                 Position = DialogPosition.Bottom,

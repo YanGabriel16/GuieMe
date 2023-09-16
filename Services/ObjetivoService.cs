@@ -11,11 +11,13 @@ namespace GuieMe.Services
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IDataStorageService _storageService;
+        private readonly ILocalService _localService;
 
-        public ObjetivoService(IUsuarioService usuarioService, IDataStorageService storageService)
+        public ObjetivoService(IUsuarioService usuarioService, IDataStorageService storageService, ILocalService localService)
         {
             _usuarioService = usuarioService;
             _storageService = storageService;
+            _localService = localService;
         }
         public async void ConcluirObjetivo(int idObjetivo)
         {
@@ -71,7 +73,14 @@ com uma carga horaria de {horas}.
                 new Objetivo(4, 5, null, "Nem todos os problemas podemos resolver nas secretarias, as vezes você pode achar a solução aqui"),
             };
 
+            var locais = _localService.Locais();
+
             objetivos = objetivos.Where(o => !o.CursoId.HasValue || o.CursoId.Value == cursoId).ToList();
+
+            foreach(var objetivo in objetivos)
+            {
+                objetivo.Nome = locais.FirstOrDefault(x => x.Id == objetivo.LocalId).Nome;
+            }
 
             return objetivos.Any() ? objetivos : new List<Objetivo>();
         }
