@@ -1,4 +1,4 @@
-﻿namespace GuieMe.Helpers
+﻿namespace GuieMe.Domain.Helpers
 {
     internal class Constants
     {

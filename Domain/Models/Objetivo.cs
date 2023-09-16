@@ -1,4 +1,4 @@
-﻿namespace GuieMe.Models
+﻿namespace GuieMe.Domain.Models
 {
     public class Objetivo
     {

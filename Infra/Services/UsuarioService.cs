@@ -1,9 +1,9 @@
-﻿using GuieMe.Helpers;
-using GuieMe.Interfaces;
-using GuieMe.Models;
+﻿using GuieMe.Domain.Helpers;
+using GuieMe.Domain.Interfaces;
+using GuieMe.Domain.Models;
 using System.Text.Json;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     public class UsuarioService : IUsuarioService
     {

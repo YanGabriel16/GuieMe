@@ -1,11 +1,11 @@
 ﻿using Aspose.Html;
 using Aspose.Html.Converters;
 using Aspose.Html.Saving;
-using GuieMe.Helpers;
-using GuieMe.Interfaces;
-using GuieMe.Models;
+using GuieMe.Domain.Helpers;
+using GuieMe.Domain.Interfaces;
+using GuieMe.Domain.Models;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     public class ObjetivoService : IObjetivoService
     {

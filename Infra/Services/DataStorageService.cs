@@ -1,8 +1,7 @@
-﻿using GuieMe.Interfaces;
-using GuieMe.Models;
+﻿using GuieMe.Domain.Interfaces;
 using System.Text.Json;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     internal class DataStorageService : IDataStorageService
     {

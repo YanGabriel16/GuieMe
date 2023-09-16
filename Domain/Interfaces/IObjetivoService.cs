@@ -1,6 +1,6 @@
-﻿using GuieMe.Models;
+﻿using GuieMe.Domain.Models;
 
-namespace GuieMe.Interfaces
+namespace GuieMe.Domain.Interfaces
 {
     public interface IObjetivoService
     {
