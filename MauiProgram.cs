@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using GuieMe.Services;
 using Radzen;
-using GuieMe.Interfaces;
+using GuieMe.Domain.Interfaces;
+using GuieMe.Infra.Services;
 
 namespace GuieMe;
 

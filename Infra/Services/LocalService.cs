@@ -1,8 +1,8 @@
-﻿using GuieMe.Interfaces;
-using GuieMe.Models;
+﻿using GuieMe.Domain.Interfaces;
+using GuieMe.Domain.Models;
 using System.Linq;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     public class LocalService : ILocalService
     {
