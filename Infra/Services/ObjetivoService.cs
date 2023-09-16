@@ -19,17 +19,18 @@ namespace GuieMe.Infra.Services
             _storageService = storageService;
             _localService = localService;
         }
-        public async void ConcluirObjetivo(int idObjetivo)
+        public async void ConcluirObjetivo(int localId)
         {
             Usuario usuario = await _usuarioService.GetUsuario();
 
             List<Objetivo> objetivos = GetObjetivos(usuario.Curso?.Id);
 
-            Objetivo objetivo = objetivos.FirstOrDefault(x => x.Id == idObjetivo);
+            Objetivo objetivo = objetivos.FirstOrDefault(x => x.LocalId == localId);
 
             if (objetivo != null)
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
+                usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();
                 await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
             }
         }

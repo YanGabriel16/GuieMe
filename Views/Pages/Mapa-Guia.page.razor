@@ -340,7 +340,7 @@
 
     protected async Task MostrarModal()
     {
-        await DialogService.OpenSideAsync<Views.Components.ModalChegada_component>("", options: new SideDialogOptions
+        await DialogService.OpenSideAsync<ModalChegada_component>("", options: new SideDialogOptions
             {
                 CloseDialogOnOverlayClick = true,
                 Position = DialogPosition.Bottom,
