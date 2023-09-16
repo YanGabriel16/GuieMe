@@ -3,13 +3,13 @@
 @using BlazorBarcodeScanner.ZXing.JS
 
 <div class="header">
-    <h3>Leitor_QrCode.page</h3>
-    <BarcodeReader Title="Scan Barcode from Camera"
-        StartCameraAutomatically="false"
-        ShowStart="true"
-        ShowReset="true"
-        ShowToggleTorch="true"
-        ShowVideoDeviceList="true"
+    <BarcodeReader Title="Leitor QrCode"
+        StartCameraAutomatically="true"
+        ShowStart="false"
+        ShowReset="false"
+        ShowResult="false"
+        ShowToggleTorch="false"
+        ShowVideoDeviceList="false"
         VideoWidth="300"
         VideoHeight="200"
         OnBarcodeReceived="LocalReceivedBarcodeText" />
