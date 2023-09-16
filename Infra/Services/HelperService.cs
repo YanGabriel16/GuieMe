@@ -1,7 +1,7 @@
-﻿using GuieMe.Interfaces;
-using GuieMe.Models;
+﻿using GuieMe.Domain.Interfaces;
+using GuieMe.Domain.Models;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     internal class HelperService : IHelperService
     {

@@ -1,0 +1,79 @@
+﻿@page "/objetivos"
+
+@using GuieMe.Domain.Models;
+@using GuieMe.Views.Components
+@using GuieMe.Domain.Interfaces;
+
+@inject IObjetivoService ObjetivoService;
+@inject IUsuarioService UsuarioService;
+
+<div class="header">
+    <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
+        <AppMenu_component></AppMenu_component>
+    </div>
+
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <h2>Objetivos</h2>
+    </div>
+
+    @if (objetivos != null)
+    {
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenAccordion>
+                <Items>
+                    @foreach (var objetivo in objetivos)
+                    {
+                        var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
+                        string objetivoStr() => $"{progresso} / 1";
+                        string icon() => progresso == 1 ? "assignment_turned_in" : "assignment_late";
+
+                        <RadzenAccordionItem Text="@objetivo.Nome" Icon="@icon()">
+                            <RadzenLabel Text="@objetivo.Descricao" style="color: black;"/>
+                            <RadzenStack Gap="1rem" Class="rz-m-12">
+                                <RadzenLabel Text="@objetivoStr()" style="color: black;" class="align-text-center"/>
+                                <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@progresso" Max="1" ShowValue="true" />
+                            </RadzenStack>
+                        </RadzenAccordionItem>
+                    }
+                    <RadzenAccordionItem Text="Total" Icon="@iconTodosObjetivosConcluidos()">
+                        <RadzenStack Gap="1rem" Class="rz-m-12">
+                            <RadzenLabel Text="@progressoObjetivosConcluidos()" style="color: black;" class="align-text-center" />
+                            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success"
+                                               Value="@quantidadeObjetivosConcluidos"
+                                               Max="@quantidadeObjetivos"
+                                               ShowValue="true" />
+                        </RadzenStack>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+    }
+</div>
+
+@code {
+    List<Objetivo> objetivos;
+    Usuario usuarioLogado;
+    int quantidadeObjetivos;
+    int quantidadeObjetivosConcluidos;
+    bool todosObjetivosConcluidos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuarioLogado = await UsuarioService.GetUsuario();
+        objetivos = ObjetivoService.GetObjetivos(usuarioLogado.Curso?.Id);
+        quantidadeObjetivos = objetivos.Count;
+        quantidadeObjetivosConcluidos = usuarioLogado.ObjetivosConcluidos.Count;
+        todosObjetivosConcluidos = quantidadeObjetivos == quantidadeObjetivosConcluidos;
+    }
+
+    string iconTodosObjetivosConcluidos() 
+        => todosObjetivosConcluidos ? "assignment_turned_in" : "assignment_late";
+
+    string progressoObjetivosConcluidos()
+        => $"{quantidadeObjetivosConcluidos} / {quantidadeObjetivos}";
+
+    public bool ObjetivoEstaConcluido(int objetivoId)
+    {
+        return usuarioLogado.ObjetivosConcluidos.Any(x => x.Id == objetivoId);
+    }
+}

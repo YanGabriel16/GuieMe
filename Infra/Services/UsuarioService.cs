@@ -1,9 +1,9 @@
-﻿using GuieMe.Helpers;
-using GuieMe.Interfaces;
-using GuieMe.Models;
+﻿using GuieMe.Domain.Helpers;
+using GuieMe.Domain.Interfaces;
+using GuieMe.Domain.Models;
 using System.Text.Json;
 
-namespace GuieMe.Services
+namespace GuieMe.Infra.Services
 {
     public class UsuarioService : IUsuarioService
     {
@@ -18,12 +18,14 @@ namespace GuieMe.Services
         public async void AtualizarDataCertificacao()
         {
             Usuario usuario = await GetUsuario();
-
-            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+            usuario.CertificadoData = DateTime.Now;
+            AtualizarUsuario(usuario);
         }
 
         public async void AtualizarUsuario(Usuario usuario)
-            => await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+        {
+            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+        }
 
         public async Task<Usuario> GetUsuario()
         {
