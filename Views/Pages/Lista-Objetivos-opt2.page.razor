@@ -7,26 +7,34 @@
 @inject IObjetivoService ObjetivoService;
 @inject IUsuarioService UsuarioService;
 
-<div class="">
+<div class="header">
     <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
         <AppMenu_component></AppMenu_component>
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <h2>Objetivos</h2>
+        <h2 style="color: #FFF200;">Objetivos</h2>
     </div>
-
+</div>
+<div>
     @if (objetivos != null)
     {
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenTimeline Orientation="Orientation.Vertical" LinePosition="LinePosition.Center" Class="rz-m-4">
+            <RadzenTimeline Orientation="Orientation.Vertical" 
+                LinePosition="LinePosition.Center" 
+                Class="rz-m-4"
+                style="--rz-timeline-line-width: 36px;
+                   max-width: 600px;
+                   margin: 0 auto;">
                 <Items>
                     @foreach (var objetivo in objetivos)
                     {
                         var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
                         PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
+                        string icon() => progresso == 1 ? "check" : "more_horiz";
 
                         <RadzenTimelineItem PointStyle="@point()">
+                            <PointContent><RadzenIcon Icon="@icon()" /></PointContent>
                             <LabelContent>
                                 <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
                             </LabelContent>
@@ -37,6 +45,13 @@
                     }
                 </Items>
             </RadzenTimeline>
+        </div>
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+            <RadzenButton Click=@(args => OnClickGerarCertificado()) 
+                Text="Gerar Certificado" 
+                class="rz-border-radius-10 rz-shadow-10" 
+                ButtonStyle="ButtonStyle.Warning" 
+                Style="background-color: #263A7F; color: #FFF200;" />
         </div>
     }
 </div>
@@ -66,5 +81,11 @@
     public bool ObjetivoEstaConcluido(int objetivoId)
     {
         return usuarioLogado.ObjetivosConcluidos.Any(x => x.Id == objetivoId);
+    }
+
+    public void OnClickGerarCertificado()
+    {
+        var teste = ObjetivoService.GerarCertificado();
+        Console.WriteLine("Certificado gerado => " + teste);
     }
 }

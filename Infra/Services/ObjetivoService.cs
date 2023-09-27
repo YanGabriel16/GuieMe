@@ -42,7 +42,7 @@ namespace GuieMe.Infra.Services
             if (usuario.TodosObjetivosForamConcluidos.HasValue 
                 && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
 
-            int horas = usuario.ObjetivosConcluidos.Count();
+            int horas = usuario.ObjetivosConcluidos.Count;
             string cursoNome = nameof(usuario.Curso);
             DateTime data = DateTime.Now;
 
@@ -52,7 +52,7 @@ Certificamos que o aluno {usuario.Nome} {usuario.Sobrenome}, do curso {cursoNome
 concluiu todos os objetivos de conhecimento do campus, no dia {data.Date}. 
 com uma carga horaria de {horas}.
 ";
-            HTMLDocument certificado = new HTMLDocument(htmlCertificado);
+            HTMLDocument certificado = new(htmlCertificado);
             
             string savePath = Path.Combine(@"\storage\emulated\0\Download\certificado-guieMe.pdf");
 
