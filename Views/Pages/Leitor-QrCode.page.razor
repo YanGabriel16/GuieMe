@@ -29,16 +29,24 @@
             </RadzenAlert>
         </RadzenStack>
     }
-    <BarcodeReader Title="Leitor QrCode"
-        StartCameraAutomatically="true"
-        ShowStart="false"
-        ShowReset="false"
-        ShowResult="true"
-        ShowToggleTorch="false"
-        ShowVideoDeviceList="false"
-        VideoWidth="300"
-        VideoHeight="200"
-        OnBarcodeReceived="LocalReceivedBarcodeText" />
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <h2 style="color: #FFF200;">Leitor QR Code</h2>
+    </div>
+    <RadzenStack class="rz-p-xl-12 rz-mb-2" AlignItems="AlignItems.Center">
+        <BarcodeReader Title=""
+            StartCameraAutomatically="true"
+            ShowStart="false"
+            ShowReset="false"
+            ShowResult="false"
+            ShowToggleTorch="true"
+            ShowVideoDeviceList="true"
+            VideoWidth="300"
+            VideoHeight="200"
+            OnBarcodeReceived="LocalReceivedBarcodeText" />
+    </RadzenStack>
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenText Class="rz-m-0" style="color: black;">Obs.: Aponte para um QR code de local que pode ser encontrado pela faculdade, exemplo: cafeterias, secretaria ou outras salas.</RadzenText>
+    </div>
 </div>
 
 @code {
