@@ -20,31 +20,35 @@
     @if (objetivos != null)
     {
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenTimeline Orientation="Orientation.Vertical" 
-                LinePosition="LinePosition.Center" 
-                Class="rz-m-4"
-                style="--rz-timeline-line-width: 36px;
-                   max-width: 600px;
-                   margin: 0 auto;">
-                <Items>
+
                     @foreach (var objetivo in objetivos)
                     {
                         var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
                         PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
                         string icon() => progresso == 1 ? "check" : "more_horiz";
+                        string mensagem() => progresso == 1 ? "Concluído" : "Em Andamento";
 
-                        <RadzenTimelineItem PointStyle="@point()">
-                            <PointContent><RadzenIcon Icon="@icon()" /></PointContent>
-                            <LabelContent>
-                                <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
-                            </LabelContent>
-                            <ChildContent>
-                                @objetivo.Descricao
-                            </ChildContent>
-                        </RadzenTimelineItem>
+                        <RadzenPanel AllowCollapse="false" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
+                            <RadzenTimeline Orientation="Orientation.Vertical"
+                                            LinePosition="LinePosition.Center"
+                                            style="--rz-timeline-line-width: 36px;
+                               max-width: 600px;
+                               margin: 0 auto;">
+                                <Items>
+                                    <RadzenTimelineItem PointStyle="@point()">
+                                        <PointContent><RadzenIcon Icon="@icon()" /></PointContent>
+                                        <LabelContent>
+                                            <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
+                                        </LabelContent>
+                                        <ChildContent>
+                                            @mensagem()
+                                        </ChildContent>
+                                    </RadzenTimelineItem>
+                                </Items>
+                            </RadzenTimeline>
+                            <RadzenText Class="rz-m-0">@objetivo.Descricao</RadzenText>
+                    </RadzenPanel>
                     }
-                </Items>
-            </RadzenTimeline>
         </div>
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
             <RadzenButton Click=@(args => OnClickGerarCertificado()) 
