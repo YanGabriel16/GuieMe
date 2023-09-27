@@ -1,4 +1,4 @@
-﻿@page "/objetivos2"
+﻿@page "/objetivos"
 
 @using GuieMe.Domain.Models;
 @using GuieMe.Views.Components
@@ -7,7 +7,7 @@
 @inject IObjetivoService ObjetivoService;
 @inject IUsuarioService UsuarioService;
 
-<div class="header">
+<div class="">
     <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
         <AppMenu_component></AppMenu_component>
     </div>
@@ -19,33 +19,24 @@
     @if (objetivos != null)
     {
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenAccordion>
+            <RadzenTimeline Orientation="Orientation.Vertical" LinePosition="LinePosition.Center" Class="rz-m-4">
                 <Items>
                     @foreach (var objetivo in objetivos)
                     {
                         var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
-                        string objetivoStr() => $"{progresso} / 1";
-                        string icon() => progresso == 1 ? "assignment_turned_in" : "assignment_late";
+                        PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
 
-                        <RadzenAccordionItem Text="@objetivo.Nome" Icon="@icon()">
-                            <RadzenLabel Text="@objetivo.Descricao" style="color: black;"/>
-                            <RadzenStack Gap="1rem" Class="rz-m-12">
-                                <RadzenLabel Text="@objetivoStr()" style="color: black;" class="align-text-center"/>
-                                <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@progresso" Max="1" ShowValue="true" />
-                            </RadzenStack>
-                        </RadzenAccordionItem>
+                        <RadzenTimelineItem PointStyle="@point()">
+                            <LabelContent>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
+                            </LabelContent>
+                            <ChildContent>
+                                @objetivo.Descricao
+                            </ChildContent>
+                        </RadzenTimelineItem>
                     }
-                    <RadzenAccordionItem Text="Total" Icon="@iconTodosObjetivosConcluidos()">
-                        <RadzenStack Gap="1rem" Class="rz-m-12">
-                            <RadzenLabel Text="@progressoObjetivosConcluidos()" style="color: black;" class="align-text-center" />
-                            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success"
-                                               Value="@quantidadeObjetivosConcluidos"
-                                               Max="@quantidadeObjetivos"
-                                               ShowValue="true" />
-                        </RadzenStack>
-                    </RadzenAccordionItem>
                 </Items>
-            </RadzenAccordion>
+            </RadzenTimeline>
         </div>
     }
 </div>
