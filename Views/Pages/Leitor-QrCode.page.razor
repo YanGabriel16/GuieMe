@@ -1,27 +1,88 @@
 ﻿@page "/leitorQrCode"
 
 @using BlazorBarcodeScanner.ZXing.JS
+@using System.Text.Json;
+@using GuieMe.Domain.Interfaces;
+@using GuieMe.Views.Components
+
+@inject IObjetivoService ObjetivoService;
 
 <div class="header">
-    <BarcodeReader Title="Leitor QrCode"
-        StartCameraAutomatically="true"
-        ShowStart="false"
-        ShowReset="false"
-        ShowResult="false"
-        ShowToggleTorch="false"
-        ShowVideoDeviceList="false"
-        VideoWidth="300"
-        VideoHeight="200"
-        OnBarcodeReceived="LocalReceivedBarcodeText" />
-    <RadzenLabel Text="@LocalBarcodeText" style="color: black;" class="align-text-center" />
+    <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
+        <AppMenu_component></AppMenu_component>
+    </div>
+    @if(erro)
+    {
+        <RadzenStack Gap="0" class="rz-py-4 rz-px-6">
+            <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Filled"
+                         AllowClose="true" Title="Erro">
+                @mensagemErro
+            </RadzenAlert>
+        </RadzenStack>
+    }
+    @if (sucesso)
+    {
+        <RadzenStack Gap="0" class="rz-py-4 rz-px-6">
+            <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Filled"
+                         AllowClose="true" Title="Local lido com sucesso">
+                Nome: @localLido.Nome
+            </RadzenAlert>
+        </RadzenStack>
+    }
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <h2 style="color: #FFF200;">Leitor QR Code</h2>
+    </div>
+    <RadzenStack class="rz-p-xl-12 rz-mb-2" AlignItems="AlignItems.Center">
+        <BarcodeReader Title=""
+            StartCameraAutomatically="true"
+            ShowStart="false"
+            ShowReset="false"
+            ShowResult="false"
+            ShowToggleTorch="true"
+            ShowVideoDeviceList="true"
+            VideoWidth="300"
+            VideoHeight="200"
+            OnBarcodeReceived="LocalReceivedBarcodeText" />
+    </RadzenStack>
+    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenText Class="rz-m-0" style="color: black;">Obs.: Aponte para um QR code de local que pode ser encontrado pela faculdade, exemplo: cafeterias, secretaria ou outras salas.</RadzenText>
+    </div>
 </div>
 
 @code {
     private string LocalBarcodeText;
+    private LocalQrCode localLido;
+    private bool erro = false;
+    private bool sucesso = false;
+    private string mensagemErro = "Ocorreu um erro no aplicativo";
 
     private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
     {
-        this.LocalBarcodeText = args.BarcodeText;
-        StateHasChanged();
+        try
+        {
+            this.LocalBarcodeText = args.BarcodeText;
+
+            if (this.LocalBarcodeText.Contains("Id") && this.LocalBarcodeText.Contains("Local"))
+            {
+                this.erro = false;
+                this.localLido = JsonSerializer.Deserialize<LocalQrCode>(this.LocalBarcodeText);
+                ObjetivoService.ConcluirObjetivo(this.localLido.Id);
+                this.sucesso = true;
+            }
+            else
+            {
+                this.sucesso = false;
+                this.mensagemErro = "Qr code invalido! não segue os padrões do aplicativo.";
+                this.erro = true;
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            this.sucesso = false;
+            this.mensagemErro = "Erro na leitura do Qr Code.";
+            this.erro = true;
+        }
     }
 }

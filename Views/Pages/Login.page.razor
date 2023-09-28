@@ -1,14 +1,18 @@
 ﻿@page "/login"
 
 @using GuieMe.Domain.Interfaces;
+@using GuieMe.Views.Components
 
 @inject IHelperService HelperService;
 @inject IUsuarioService UsuarioService;
 @inject NavigationManager Navigation
 
 <div class="header">
+    <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
+        <AppMenu_component></AppMenu_component>
+    </div>
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <h2>Login</h2>
+        <h2 style="color: #FFF200;">Login</h2>
     </div>
 
     @if (usuarioLogado != null)
@@ -41,10 +45,6 @@
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
             <RadzenButton Click=@(args => OnClickLogar()) Text="Logar" Icon="account_circle" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
         </div>
-
-        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenButton Click=@(args => OnClickVoltar()) Text="Voltar" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
-        </div>
     }
 </div>
 
@@ -65,9 +65,6 @@
         UsuarioService.AtualizarUsuario(usuarioLogado);
         Navigation.NavigateTo("/");
     }
-
-    public void OnClickVoltar()
-        => Navigation.NavigateTo("/");
    
     public void SelectCurso(object cursoId)
     {
