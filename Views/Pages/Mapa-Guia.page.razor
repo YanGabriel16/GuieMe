@@ -11,6 +11,7 @@
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Local atual</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de partida"
                         Change=@(id_Local => SelectLocalPartida(id_Local)) Style="width: 95%; max-width: 400px;">
@@ -18,6 +19,7 @@
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-5">
+        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Destino</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalDestido AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de destino"
                         Change=@(id_Local => SelectLocalDestino(id_Local)) Style="width: 95%; max-width: 400px;">
