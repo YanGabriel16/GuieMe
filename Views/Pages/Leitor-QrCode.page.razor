@@ -1,6 +1,5 @@
 ﻿@page "/leitorQrCode"
 
-@using BlazorBarcodeScanner.ZXing.JS
 @using System.Text.Json;
 @using GuieMe.Domain.Interfaces;
 @using GuieMe.Views.Components
@@ -33,16 +32,7 @@
         <h2 style="color: #FFF200;">Leitor QR Code</h2>
     </div>
     <RadzenStack class="rz-p-xl-12 rz-mb-2" AlignItems="AlignItems.Center">
-        <BarcodeReader Title=""
-            StartCameraAutomatically="true"
-            ShowStart="false"
-            ShowReset="false"
-            ShowResult="false"
-            ShowToggleTorch="true"
-            ShowVideoDeviceList="true"
-            VideoWidth="300"
-            VideoHeight="200"
-            OnBarcodeReceived="LocalReceivedBarcodeText" />
+
     </RadzenStack>
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
         <RadzenText Class="rz-m-0" style="color: black;">Obs.: Aponte para um QR code de local que pode ser encontrado pela faculdade, exemplo: cafeterias, secretaria ou outras salas.</RadzenText>
@@ -56,7 +46,7 @@
     private bool sucesso = false;
     private string mensagemErro = "Ocorreu um erro no aplicativo";
 
-    private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    /*private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
     {
         try
         {
@@ -84,5 +74,5 @@
             this.mensagemErro = "Erro na leitura do Qr Code.";
             this.erro = true;
         }
-    }
+    }*/
 }
