@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using GuieMe.Domain.Helpers;
 @using GuieMe.Views.Components;
 @using GuieMe.Domain.Interfaces;
 
@@ -27,6 +28,7 @@
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">LocalId: @Constants.LocalAtualId.ToString()</RadzenText>
         <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
     </div>
     <div class="rz-p-xl-12 rz-text-align-center">
