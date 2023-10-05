@@ -1,8 +1,10 @@
 ﻿@page "/"
+@using GuieMe.Domain.Helpers;
 @using GuieMe.Views.Components;
 @using GuieMe.Domain.Interfaces;
 
 @inject ILocalService LocalService
+@inject IObjetivoService _objetivoService
 @inject DialogService DialogService
 
 <div class="header">
@@ -128,6 +130,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _objetivoService.ConcluirObjetivo(Constants.LocalAtualId);
         locais = LocalService.Locais();
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
         paredes = LocalService.Paredes();
