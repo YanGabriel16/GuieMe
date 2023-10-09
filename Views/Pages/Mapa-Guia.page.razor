@@ -50,7 +50,11 @@
 
                 @foreach (var local in locais)
                 {
-                    if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
+                    if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude && local.Escada == true)
+                    {
+                        tipo = "escada";
+                    }
+                    else if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
                     {
                         tipo = "entrada";
                         <div class="loc_entrada" data-text="@local.Nome" style="left: @(latitude * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
@@ -59,7 +63,7 @@
                     else
                     {
                         if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude >= local.LongitudeMin && longitude <= local.LongitudeMax) ||
-                            (latitude >= local.LatitudeMin && latitude <= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
+                        (latitude >= local.LatitudeMin && latitude <= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
                         {
                             tipo = "parede";
                             paredes.Add(new Tuple<int, int>(latitude, longitude));
@@ -147,7 +151,7 @@
     {
         foreach (var posicao in posicoes)
         {
-            foreach(var local in locaisAcessiveis)
+            foreach (var local in locaisAcessiveis)
             {
                 bool latitudeCheckpoint = posicao.latitude == local.LatitudeEntrada
                     || posicao.latitude + 1 == local.LatitudeEntrada
@@ -166,7 +170,12 @@
                         usuarios.LatitudeAtual = local.LatitudeEntrada;
                         valorSelecionadoLocalPartida = local.Id;
                         SelectLocalPartida(local.Id);
-                        return;
+
+                        if (local.Escada == true)
+                        {
+                            //TODO:  modal perguntando se quer passar pela escada mesmo
+
+                        }                      
                     }
                 }
             }
@@ -175,7 +184,7 @@
     public void OnClickVoltarCheckpoint()
     {
         if (posicoesAnterior.Count > 0)
-        {            
+        {
             var posicaoAnterior = posicoesAnterior.FindLast(o => o.latitude != null);
             var localAnterior = locaisAcessiveis.Find(o => o.LatitudeEntrada == posicaoAnterior.latitude
                     && o.LongitudeEntrada == posicaoAnterior.longitude);
@@ -250,7 +259,7 @@
             {
                 posicaoInicialUsuario = (latitudePartida, longitudePartida);
                 usuarios.LatitudeAtual = latitudePartida;
-                usuarios.LongitudeAtual = longitudePartida;            
+                usuarios.LongitudeAtual = longitudePartida;
             }
             else
             {

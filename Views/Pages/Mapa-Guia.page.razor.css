@@ -35,6 +35,10 @@
     background-color: white;
 }
 
+.escada{
+    background-color: greenyellow;
+}
+
 .rota {
     stroke: blue;
     stroke-width: 4;
