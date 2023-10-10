@@ -48,6 +48,7 @@
                 var posicao = $"{latitude}, {longitude}"; //momentaneo
                 var tipo = "";
 
+                //if (locais != null) //TODO: Refazer mapa quando trocar de andar
                 @foreach (var local in locais)
                 {
                     if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude && local.Escada == true)
