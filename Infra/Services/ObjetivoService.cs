@@ -28,7 +28,7 @@ namespace GuieMe.Infra.Services
 
             Objetivo objetivo = objetivos.FirstOrDefault(x => x.LocalId == localId);
 
-            if (objetivo != null)
+            if (objetivo != null && !usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
                 usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();

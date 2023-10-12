@@ -6,6 +6,7 @@
 
 @inject IObjetivoService ObjetivoService;
 @inject IUsuarioService UsuarioService;
+@inject DialogService DialogService
 
 <div class="header">
     <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
@@ -55,9 +56,15 @@
         </div>
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
             <RadzenButton Click=@(args => OnClickGerarCertificado()) 
-                Text="Gerar Certificado" 
+                Text="Gerar Certificado"
+                Icon="aspect_ratio"
                 class="rz-border-radius-10 rz-shadow-10" 
                 ButtonStyle="ButtonStyle.Warning" 
+                Style="background-color: #263A7F; color: #FFF200;" />
+            <RadzenButton Click=@(args => OnClickInfoObjetivos()) 
+                Icon="help_outline" 
+                ButtonStyle="ButtonStyle.Primary"
+                class="rz-border-radius-10 rz-shadow-10"
                 Style="background-color: #263A7F; color: #FFF200;" />
         </div>
     }
@@ -94,5 +101,18 @@
     {
         var teste = ObjetivoService.GerarCertificado();
         Console.WriteLine("Certificado gerado => " + teste);
+    }
+
+    public void OnClickInfoObjetivos()
+    {
+        var mensagem = $@"
+    1- Os objetivos so são concluidos ao ler um QR code do local e abrir o aplicativo com o mesmo;<br><br>
+    2- Para abrir o aplicativo com o QR code basta scannear o mesmo com a camera do celular, clicar no link lido e em seguida abrir com o aplicativo GuieMe;<br>
+        Obs.: Alguns celulares abrem o link no navegador e ficam com o icone do aplicativo no canto superior direito, clicando no icone do aplicativo o mesmo abre o link pelo aplicativo selecionado;<br><br>
+    3- Os certificados so são disponibilizados para serem gerados após concluir todos os objetivos;<br><br>
+    4- Objetivos são separados por cursos, cada curso tem seus objetivos(locais da universidade a serem conhecidos), por isso é necessario informar seus dados na tela de login local acessado pelo menu;<br><br>
+    5- Alguns dados são necessarios para gerar o certificado, como RA, nome e curso que o usuario está realizando na universidade;<br><br>
+    6- Para validar o certificado basta levar para o coordenador do seu curso.";
+        DialogService.Alert(mensagem, "Objetivos Duvidas", new AlertOptions() { OkButtonText = "Ok" });
     }
 }
