@@ -71,7 +71,7 @@
         <PackageReference Include="Aspose.HTML" Version="23.7.0" />
         <PackageReference Include="BlazorBarcodeScanner.ZXing.JS" Version="1.0.3" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-        <PackageReference Include="Radzen.Blazor" Version="4.16.2" />
+        <PackageReference Include="Radzen.Blazor" Version="4.17.1" />
     </ItemGroup>
 
 </Project>
