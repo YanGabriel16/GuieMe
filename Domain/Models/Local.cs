@@ -23,6 +23,9 @@ public class Local
     public int LongitudeEntrada { get; set; }
     public bool LocalAcessivel { get; set; } = true;
     public bool Escada { get; set; } = false;
+    public int Pisoo { get; set; }
     public EnPiso Piso { get; set; } = EnPiso.NaoInformado;
     public EnPredio Predio { get; set; } = EnPredio.NaoInformado;
+
+    public int AndarId { get; set; }
 }

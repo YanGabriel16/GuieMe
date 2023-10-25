@@ -20,6 +20,8 @@ public class Usuario
     public Curso Curso { get; set; } 
     public int LatitudeAtual { get; set; }
     public int LongitudeAtual { get; set; }
+  //  public EnPiso PisoAtual { get; set; } = EnPiso.NaoInformado;
+    public int PisoAtual { get; set; }
     public List<Objetivo> ObjetivosConcluidos { get; set; }
     public bool? TodosObjetivosForamConcluidos { get; set; }
     public DateTime? CertificadoData { get; set; }
