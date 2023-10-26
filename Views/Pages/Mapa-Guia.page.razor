@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/dee"
 
 @using GuieMe.Domain.Enums;
 @using GuieMe.Domain.Helpers;
@@ -34,7 +34,18 @@
         <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
     </div>
     <div class="rz-p-xl-12 rz-text-align-center">
-        <RadzenButton Click=@(args => OnClickVoltarCheckpoint()) Text="Voltar Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        <RadzenButton Click=@(args => OnClickVoltarCheckpoint()) 
+                      Text="Voltar Checkpoint" 
+                      Icon="explore" 
+                      class="rz-border-radius-10 rz-shadow-10" 
+                      ButtonStyle="ButtonStyle.Warning" 
+                      Style="background-color: #FFF200; color: #263A7F;" />
+
+        <RadzenButton Click=@(args => OnClickInfoCheckpoint())
+                      Icon="help_outline"
+                      ButtonStyle="ButtonStyle.Primary"
+                      class="rz-border-radius-10 rz-shadow-10"
+                      Style="background-color: #FFF200; color: #263A7F;" />
     </div>
 </div>
 
@@ -71,8 +82,8 @@
     List<Local> locais;
     List<Andar> andares;
 
-    List<Tuple<int, int>> paredes;
-    List<Tuple<int, int>> escadas;
+    List<Tuple<int, int>> paredes = new();
+    List<Tuple<int, int>> escadas = new();
 
     public string _posicoesRota { get; set; }
 
@@ -86,15 +97,15 @@
     public int latitudeDestino { get; set; }
     public int longitudeDestino { get; set; }
 
-    public Usuario usuarios = new Usuario();
-    public Local localSelecionadoDestino = new Local();
-    public Local localSelecionadoPartida = new Local();
+    public Usuario usuarios = new();
+    public Local localSelecionadoDestino = new();
+    public Local localSelecionadoPartida = new();
 
-    public Andar andarPartida = new Andar();
-    public Andar andarDestino = new Andar();
+    public Andar andarPartida = new();
+    public Andar andarDestino = new();
 
-    public List<(int latitude, int longitude)> posicoes { get; set; } = new List<(int, int)>();
-    public List<(int latitude, int longitude)> posicoesAnterior { get; set; } = new List<(int, int)>();
+    public List<(int latitude, int longitude)> posicoes { get; set; } = new();
+    public List<Local> locaisAnteriores { get; set; } = new();
 
     public Local escadaCheckpoint { get; set; }
 
@@ -105,8 +116,7 @@
         andares = LocalService.Andares();
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
 
-        paredes = LocalService.Paredes();
-        escadas = LocalService.Escadas();
+        locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
 
         //if (posicoes.Count > 0)
         //{
@@ -118,6 +128,14 @@
     {
         var locaisAndar = locais.Where(x => x.Pisoo == piso).ToList();
         return locaisAndar;
+    }
+
+    public void OnClickInfoCheckpoint()
+    {
+        var mensagem = $@"
+    1- O botão de checkpoint leava para o próximo ponto de referencia;<br><br>
+    2- O botão de voltar checkpoint volta para o ponto de referencia anterior.";
+        DialogService.Alert(mensagem, "Checkpoint Duvidas", new AlertOptions() { OkButtonText = "Ok" }); //TODO: Arrumar texto
     }
 
     void OnChangeAndar(int index)
@@ -159,7 +177,7 @@
                     {
                         if (local.Id != valorSelecionadoLocalPartida)
                         {
-                            posicoesAnterior.Add((usuarios.LatitudeAtual, usuarios.LongitudeAtual));
+                            locaisAnteriores.Add(local);
 
                             usuarios.LatitudeAtual = local.LatitudeEntrada;
                             usuarios.LongitudeAtual = local.LongitudeEntrada;
@@ -189,21 +207,46 @@
         }
     }
 
-    public void OnClickVoltarCheckpoint() //TODO: voltar checkpoint quando muda de andar
+    public async Task OnClickVoltarCheckpoint() //TODO: voltar checkpoint quando muda de andar
     {
-        if (posicoesAnterior.Count > 0)
+        if (locaisAnteriores.Any())
         {
-            var posicaoAnterior = posicoesAnterior.FindLast(o => o.latitude != null);
-            var localAnterior = locaisAcessiveis.Find(o => o.LatitudeEntrada == posicaoAnterior.latitude
-                                                            && o.LongitudeEntrada == posicaoAnterior.longitude);
+            var localAnterior = locaisAnteriores.Last();
+
+            if (usuarios.LongitudeAtual == localAnterior.LongitudeEntrada
+                && usuarios.LatitudeAtual == localAnterior.LatitudeEntrada
+                && usuarios.PisoAtual == localAnterior.Pisoo)
+            {
+                locaisAnteriores.Remove(localAnterior);
+                localAnterior = locaisAnteriores.Last();
+            }
+
+            if (localAnterior.Escada)
+                localAnterior = locais.FindLast(o => o.LatitudeEntrada == localAnterior.LatitudeEntrada
+                                                     && o.LongitudeEntrada == localAnterior.LongitudeEntrada
+                                                     && o.Pisoo == usuarios.PisoAtual);
 
             if (localAnterior != null)
             {
-                posicoesAnterior.Remove(posicaoAnterior);
-                usuarios.LongitudeAtual = posicaoAnterior.longitude;
-                usuarios.LatitudeAtual = posicaoAnterior.latitude;
+                locaisAnteriores.Remove(locaisAnteriores.Last());
                 valorSelecionadoLocalPartida = localAnterior.Id;
-                SelectLocalPartida(localAnterior.Id);
+                usuarios.LatitudeAtual = localAnterior.LatitudeEntrada;
+                usuarios.LongitudeAtual = localAnterior.LongitudeEntrada; //TODO: se a pessoa voltarchepoint até o ponto de partida zerar rota
+
+                if (localAnterior.Escada)//TODO: Nao funciona quando usado o dialog de confirmacao (false fixado pra nao usar)
+                {
+                    var mensagemEscada = locaisAnteriores.Last().Pisoo > localAnterior.Pisoo ? "Subir" : "Descer";
+                    var result = await DialogService.Confirm("Obs.: Negar está opção ira zerar a rota.", $"{mensagemEscada} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
+
+                    if (result.Value == true)
+                    {
+                        SelectLocalPartida(localAnterior.Id);
+                    }
+                }
+                else
+                {
+                    SelectLocalPartida(localAnterior.Id);
+                }
             }
         }
     }
