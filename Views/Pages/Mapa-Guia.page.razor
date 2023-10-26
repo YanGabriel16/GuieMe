@@ -1,4 +1,4 @@
-﻿@page "/dee"
+﻿@page "/"
 
 @using GuieMe.Domain.Enums;
 @using GuieMe.Domain.Helpers;
@@ -53,10 +53,10 @@
 {
     <RadzenTabs Change=@OnChangeAndar @bind-SelectedIndex=@indexAndarAtivo TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
         <Tabs>
-            <RadzenTabsItem Text="Térreo">
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="Térreo">
                 <Mapa_component @ref="mapaTerreo" locais="@getLocaisAndar(1)" _posicoesRota="@_posicoesRota" latitudeUsuario="@usuarios.LatitudeAtual" longitudeUsuario="@usuarios.LongitudeAtual"></Mapa_component>
             </RadzenTabsItem>
-            <RadzenTabsItem Text="Primeiro Andar">
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="Primeiro Andar">
                 <Mapa_component @ref="mapaPrimeiroAndar" locais="@getLocaisAndar(2)" _posicoesRota="@_posicoesRota" latitudeUsuario="@usuarios.LatitudeAtual" longitudeUsuario="@usuarios.LongitudeAtual"></Mapa_component>
             </RadzenTabsItem>
             @*<RadzenTabsItem Text="Segundo Andar">
@@ -108,6 +108,8 @@
     public List<Local> locaisAnteriores { get; set; } = new();
 
     public Local escadaCheckpoint { get; set; }
+
+    public bool dabilitarTab { get => !string.IsNullOrEmpty(_posicoesRota); }
 
     protected override async Task OnInitializedAsync()
     {
@@ -579,6 +581,5 @@
     {
         posicoes.Clear();
         this._posicoesRota = null;
-        //mapaSegundoAndar.ZerarRota();
     }
 }

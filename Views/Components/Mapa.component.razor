@@ -1,10 +1,7 @@
 ﻿<div class="mapa-container">
-    @if (!string.IsNullOrEmpty(_posicoesRota))
-    {
-        <svg>
-            <polyline points="@_posicoesRota" class="rota" />
-        </svg>
-    }
+    <svg>
+        <polyline points="@_posicoesRota" class="rota" />
+    </svg>
 
     <div class="mapa">
         @if(locais != null && locais.Any())
@@ -81,7 +78,7 @@
 @code {
     #region Parametros
     [Parameter]
-    public List<Local> locais { get; set; } = new List<Local>();
+    public List<Local> locais { get; set; } = new();
 
     [Parameter]
     public int latitudeUsuario { get; set; }
@@ -91,23 +88,16 @@
 
     [Parameter]
     public string _posicoesRota { get; set; }
+    #endregion
 
     public int qtdColunas { get; set; } = 30;
     public int qtdLinhas { get; set; } = 15;
     public int tamanhoPosicaoPX { get; set; } = 30; //50
     public int larguraTela { get; set; } = 400; //deixar dinamico - pega o tamanho da tela
     public int alturaTela { get; set; } = 300; //deixar dinamico
-    #endregion
 
-    int pisoDoMapa;
+    public List<Tuple<int, int>> paredes = new();
+    public List<Tuple<int, int>> escadas = new();
 
-    public List<Tuple<int, int>> paredes = new List<Tuple<int, int>>();
-    public List<Tuple<int, int>> escadas = new List<Tuple<int, int>>();
-
-    public Usuario usuarios = new Usuario();
-
-    public void ZerarRota()
-    {
-        _posicoesRota = null;
-    }
+    public Usuario usuarios = new();
 }
