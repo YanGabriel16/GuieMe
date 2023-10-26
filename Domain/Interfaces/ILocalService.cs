@@ -6,7 +6,5 @@ namespace GuieMe.Domain.Interfaces
     {
         List<Andar> Andares();
         List<Local> Locais();
-        List<Tuple<int, int>> Paredes();
-        List<Tuple<int, int>> Escadas();
     }
 }

@@ -38,11 +38,11 @@ namespace GuieMe.Infra.Services
                 new Local(13, "Laboratório 2")           { LatitudeMin = 04, LongitudeMin = 10, LatitudeMax = 12, LongitudeMax = 14, LatitudeEntrada = 10, LongitudeEntrada = 10, Pisoo = 2, AndarId = 1},
                 new Local(14, "Coordenação 2")           { LatitudeMin = 16, LongitudeMin = 10, LatitudeMax = 24, LongitudeMax = 14, LatitudeEntrada = 16, LongitudeEntrada = 12, Pisoo = 2, AndarId = 1},
 
-                new Local(9, "Secretaria 3")             { LatitudeMin = 01, LongitudeMin = 01, LatitudeMax = 06, LongitudeMax = 09, LatitudeEntrada = 06, LongitudeEntrada = 08, Pisoo = 3, AndarId = 2},
-                new Local(10, "Papelaria 3")             { LatitudeMin = 09, LongitudeMin = 01, LatitudeMax = 17, LongitudeMax = 06, LatitudeEntrada = 16, LongitudeEntrada = 06, Pisoo = 3, AndarId = 2},
-                new Local(11, "Cafeteria 3")             { LatitudeMin = 22, LongitudeMin = 01, LatitudeMax = 28, LongitudeMax = 09, LatitudeEntrada = 22, LongitudeEntrada = 03, Pisoo = 3, AndarId = 2},
-                new Local(13, "Laboratório 3")           { LatitudeMin = 04, LongitudeMin = 10, LatitudeMax = 12, LongitudeMax = 14, LatitudeEntrada = 10, LongitudeEntrada = 10, Pisoo = 3, AndarId = 2},
-                new Local(14, "Laboratório 3")           { LatitudeMin = 16, LongitudeMin = 10, LatitudeMax = 24, LongitudeMax = 14, LatitudeEntrada = 16, LongitudeEntrada = 12, Pisoo = 3, AndarId = 2},
+                new Local(17, "Secretaria 3")             { LatitudeMin = 01, LongitudeMin = 01, LatitudeMax = 06, LongitudeMax = 09, LatitudeEntrada = 06, LongitudeEntrada = 08, Pisoo = 3, AndarId = 2},
+                new Local(18, "Papelaria 3")             { LatitudeMin = 09, LongitudeMin = 01, LatitudeMax = 17, LongitudeMax = 06, LatitudeEntrada = 16, LongitudeEntrada = 06, Pisoo = 3, AndarId = 2},
+                new Local(19, "Cafeteria 3")             { LatitudeMin = 22, LongitudeMin = 01, LatitudeMax = 28, LongitudeMax = 09, LatitudeEntrada = 22, LongitudeEntrada = 03, Pisoo = 3, AndarId = 2},
+                new Local(20, "Laboratório 3")           { LatitudeMin = 04, LongitudeMin = 10, LatitudeMax = 12, LongitudeMax = 14, LatitudeEntrada = 10, LongitudeEntrada = 10, Pisoo = 3, AndarId = 2},
+                new Local(21, "Laboratório 3")           { LatitudeMin = 16, LongitudeMin = 10, LatitudeMax = 24, LongitudeMax = 14, LatitudeEntrada = 16, LongitudeEntrada = 12, Pisoo = 3, AndarId = 2},
 
 
                 new Local(7, "Escada 1")                 { LatitudeMin = -1, LongitudeMin = -1, LatitudeMax = -1, LongitudeMax = -1, LatitudeEntrada = 08, LongitudeEntrada = 06, Pisoo = 1, Escada = true}, 
@@ -52,17 +52,6 @@ namespace GuieMe.Infra.Services
             };
 
             return locais.OrderBy(o => o.Nome).ToList();
-        }
-
-        public List<Tuple<int, int>> Paredes() //TODO: Validar
-        {
-            List<Tuple<int, int>> paredes = new List<Tuple<int, int>>();
-            return paredes;
-        }
-        public List<Tuple<int, int>> Escadas()
-        {
-            List<Tuple<int, int>> escadas = new List<Tuple<int, int>>();
-            return escadas;
         }
     }
 }
