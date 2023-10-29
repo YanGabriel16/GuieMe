@@ -15,7 +15,11 @@ public static class MauiProgram
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
+                fonts.AddFont("Verdana-Regular.ttf", "VerdanaRegular");
+                fonts.AddFont("Verdana-Italic.ttf", "VerdanaItalic");
+                fonts.AddFont("Verdana-Bold.ttf", "VerdanaBold");
+                fonts.AddFont("Verdana-BoldItalic.ttf", "VerdanaBoldItalic");
+            });
 
 		builder.Services.AddMauiBlazorWebView();
 
