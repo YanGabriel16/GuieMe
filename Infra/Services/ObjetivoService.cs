@@ -28,39 +28,41 @@ namespace GuieMe.Infra.Services
 
             Objetivo objetivo = objetivos.FirstOrDefault(x => x.LocalId == localId);
 
-            if (objetivo != null && !usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
+            if (objetivo == null) return;
+
+            if (!usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
                 usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();
                 await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
             }
+
+            if (usuario.ObjetivosConcluidos.Count >= objetivos.Count)
+            {
+                usuario.TodosObjetivosForamConcluidos = true;
+                _usuarioService.AtualizarUsuario(usuario);
+            }
         }
 
-        public async Task<bool> GerarCertificado()
+        public async Task<CertificadoDados> GetDadosCertificado()
         {
             Usuario usuario = await _usuarioService.GetUsuario();
-
-            //if (usuario.TodosObjetivosForamConcluidos.HasValue 
-               // && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
-
             int horas = usuario.ObjetivosConcluidos.Count;
             DateTime data = DateTime.Now;
 
-            //TODO: Criar modelo de certificacao
-            string conteudoHtml = $@"
-Certificamos que o aluno {usuario.Nome} {usuario.Sobrenome}, do curso {usuario.Curso.Nome}, do RA {usuario.RA}
-concluiu todos os objetivos de conhecimento do campus, no dia {data.Date}. 
-com uma carga horaria de {horas}.
-";
-            HTMLDocument certificado = new(conteudoHtml);
-            
-            string savePath = Path.Combine(@"\storage\emulated\0\Download\certificado-guieMe.pdf");
+            CertificadoDados certificadoDados = new()
+            {
+                Data = data,
+                QuantidadeHoras = horas,
+                AlunoNome = $"{usuario.Nome} {usuario.Sobrenome}",
+                AlunoCurso = usuario.Curso.Nome,
+                AlunoRA = usuario.RA,
+            };
 
-            Converter.ConvertHTML(certificado, new PdfSaveOptions(), savePath);
+            if (usuario.CertificadoData == null)
+                _usuarioService.AtualizarDataCertificacao();
 
-            _usuarioService.AtualizarDataCertificacao();
-
-            return true;
+            return certificadoDados;
         }
 
         public List<Objetivo> GetObjetivos(int? cursoId)

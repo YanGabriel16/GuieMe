@@ -4,8 +4,8 @@
 @using GuieMe.Views.Components
 @using GuieMe.Domain.Interfaces;
 
-@inject IObjetivoService ObjetivoService;
-@inject IUsuarioService UsuarioService;
+@inject IObjetivoService _objetivoService;
+@inject IUsuarioService _usuarioService;
 @inject DialogService DialogService
 
 <div class="header">
@@ -79,8 +79,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        usuarioLogado = await UsuarioService.GetUsuario();
-        objetivos = ObjetivoService.GetObjetivos(usuarioLogado.Curso?.Id);
+        usuarioLogado = await _usuarioService.GetUsuario();
+        objetivos = _objetivoService.GetObjetivos(usuarioLogado.Curso?.Id);
         quantidadeObjetivos = objetivos.Count;
         quantidadeObjetivosConcluidos = usuarioLogado.ObjetivosConcluidos.Count;
         todosObjetivosConcluidos = quantidadeObjetivos == quantidadeObjetivosConcluidos;
@@ -97,10 +97,21 @@
         return usuarioLogado.ObjetivosConcluidos.Any(x => x.Id == objetivoId);
     }
 
-    public void OnClickGerarCertificado()
+    public async void OnClickGerarCertificado()
     {
-        var teste = ObjetivoService.GerarCertificado();
-        Console.WriteLine("Certificado gerado => " + teste);
+        if(usuarioLogado != null && !string.IsNullOrEmpty(usuarioLogado.RA) && usuarioLogado.TodosObjetivosForamConcluidos == false)
+        {
+            var mensagem = $@"
+    Para gerar o certificado é necessário:<br>
+    1- Que o usuário informe os dados pro sistema;<br>
+    2- Que o usuário tenha concluido todos os objetivos.";
+            await DialogService.Alert(mensagem, "Não foi possivel gerar o certificado!", new AlertOptions() { OkButtonText = "Ok" });
+            return;
+        }
+
+        var certificadoDados = await _objetivoService.GetDadosCertificado();
+        PdfService service = new PdfService();
+        service.GerarAbrirCertificadoPDF(certificadoDados);
     }
 
     public void OnClickInfoObjetivos()

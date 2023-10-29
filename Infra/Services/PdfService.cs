@@ -1,124 +1,91 @@
-﻿using GuieMe.Domain.Helpers;
-using GuieMe.Domain.Interfaces;
-using PdfSharpCore.Drawing;
-using PdfSharpCore.Pdf;
-using System.IO;
+﻿using Aspose.Html.Dom;
+using GuieMe.Domain.Helpers;
+using GuieMe.Domain.Models;
 using SkiaSharp;
 
 namespace GuieMe.Infra.Services
 {
     public class PdfService
     {
-        public void CriarPdfESalvar2()
+        public byte[] CriarPDF(CertificadoDados dados)
         {
-            //string diretorioApp = AppDomain.CurrentDomain.BaseDirectory;
-            //string pastaPdf = Path.Combine(diretorioApp, "PDFs");
-            //string nomeArquivo = "arquivo.pdf";
-            //string caminhoPdf = Path.Combine(pastaPdf, nomeArquivo);
+            int largura = 800;
+            int altura = 600;
+            SKColor corFundo = SKColors.LightBlue;
+            SKColor corTexto = SKColors.Black;
+            SKColor corBorda = SKColors.DarkBlue;
+            SKColor corBorda2 = SKColors.Yellow;
 
-            //if (!Directory.Exists(pastaPdf))
-            //{
-            //    Directory.CreateDirectory(pastaPdf);
-            //}
-
-            //Constants.rotaPdf = caminhoPdf;
-
-            //using (var documento = new PdfSharpCore.Pdf.PdfDocument())
-            //{
-            //    documento.Info.Title = "Meu Arquivo PDF";
-            //    PdfSharpCore.Pdf.PdfPage pagina = documento.AddPage();
-            //    XGraphics graficos = XGraphics.FromPdfPage(pagina);
-            //    XFont fonte = new XFont("Verdana", 20, XFontStyle.Bold);
-
-            //    graficos.DrawString("Olá, este é o meu PDF!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-            //    documento.Save(caminhoPdf);
-
-            string pastaPdf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arquivo.pdf");
-
-            using (var documento = new PdfSharpCore.Pdf.PdfDocument())
-            {
-                documento.Info.Title = "Meu Arquivo PDF";
-                PdfSharpCore.Pdf.PdfPage pagina = documento.AddPage();
-                XGraphics graficos = XGraphics.FromPdfPage(pagina);
-                XFont fonte = new XFont("Verdana", 20, XFontStyle.Regular);
-
-                graficos.DrawString("Olá, este é o meu PDF!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-                documento.Save(pastaPdf);
-            }
-        }
-
-
-        //public byte[] CriarPdf()
-        //{
-        //    using (var memoryStream = new MemoryStream())
-        //    {
-        //        using (var documento = new PdfDocument())
-        //        {
-        //            documento.Info.Title = "Meu Arquivo PDF";
-        //            PdfPage pagina = documento.AddPage();
-        //            XGraphics graficos = XGraphics.FromPdfPage(pagina);
-        //            XFont fonte = new XFont("Verdana", 20, XFontStyle.Regular);
-
-        //            graficos.DrawString("Olá, este é o meu PDF em byte!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-        //            documento.Save(memoryStream);
-        //        }
-        //        return memoryStream.ToArray();
-        //    }
-        //}
-
-        public byte[] CriarPDF()
-        {
-            // Cria um objeto MemoryStream para armazenar os dados do PDF em memória
             using (MemoryStream stream = new MemoryStream())
             {
-                // Cria um objeto SKDocument para o PDF
                 using (SKDocument documento = SKDocument.CreatePdf(stream))
                 {
-                    // Cria uma página no documento PDF
-                    using (SKCanvas canvas = documento.BeginPage(500, 500))
+                    using (SKCanvas canvas = documento.BeginPage(largura, altura))
                     {
-                        // Cria um objeto SKPaint para o texto
-                        SKPaint paint = new SKPaint
+                        canvas.Clear(corFundo);
+
+                        SKPaint paintTexto = new SKPaint
                         {
-                            TextSize = 20,
-                            IsAntialias = true,
-                            Color = SKColors.Black,
+                            Color = corTexto,
+                            TextSize = 40.0f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true
                         };
 
-                        // Desenha o texto na página PDF
-                        canvas.DrawText("Texto no PDF usando SkiaSharp", 50, 100, paint);
+                        string dataFormatada = dados.Data.ToString("dd/MM/yyyy HH:mm");
+                        float x = largura / 2;
+                        float y = altura / 2 - paintTexto.TextSize;
+                        canvas.DrawText(dados.AlunoNome, x, y, paintTexto);
+                        y += paintTexto.TextSize * 1.5f;
+                        canvas.DrawText("RA: " + dados.AlunoRA, x, y, paintTexto);
+                        y += paintTexto.TextSize * 1.5f;
+                        canvas.DrawText("Horas: " + dados.QuantidadeHoras, x, y, paintTexto);
+                        y += paintTexto.TextSize * 1.5f;
+                        canvas.DrawText("Data: " + dataFormatada, x, y, paintTexto);
+                        y += paintTexto.TextSize * 1.5f;
+                        canvas.DrawText("Curso: " + dados.AlunoCurso, x, y, paintTexto);
+
+                        // Configurações de borda
+                        SKPaint paintBorda = new SKPaint
+                        {
+                            Color = corBorda,
+                            StrokeWidth = 10,
+                            IsAntialias = true,
+                            Style = SKPaintStyle.Stroke
+                        };
+
+                        // Desenha a borda do certificado
+                        SKRect rect = new SKRect(0, 0, largura, altura);
+                        canvas.DrawRoundRect(rect, 20, 20, paintBorda);
+
+                        // Configurações de segunda borda
+                        SKPaint paintBorda2 = new SKPaint
+                        {
+                            Color = corBorda2,
+                            StrokeWidth = 5,
+                            IsAntialias = true,
+                            Style = SKPaintStyle.Stroke
+                        };
+
+                        // Desenha uma segunda borda dentro da primeira
+                        rect.Inflate(-10, -10);
+                        canvas.DrawRoundRect(rect, 20, 20, paintBorda2);
                     }
 
-                    // Finaliza a página
                     documento.EndPage();
                 }
 
-                // Obtém o array de bytes do MemoryStream
                 byte[] pdfBytes = stream.ToArray();
                 return pdfBytes;
             }
         }
 
-        //public void OpenPdf()
-        //{
-        //    string fileName = "temp.pdf";
-        //    var pdfByte = CriarPdf();
-        //    try
-        //    {
-        //        DependencyService.Get<IPdfViewer>().OpenPdf(pdfByte, fileName);
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        Constants.rotaPdf = ex.Message;
-        //    }
-        //}
-
-        public void AbrirPDF()
+        public void GerarAbrirCertificadoPDF(CertificadoDados certificadoDados)
         {
             try
             {
-                string fileName = "temp.pdf";
-                var pdfByte = CriarPDF();
+                string fileName = "GuieMeCertificado.pdf";
+                var pdfByte = CriarPDF(certificadoDados);
                 string caminhoArquivo = System.IO.Path.Combine(FileSystem.CacheDirectory, fileName);
 
                 File.WriteAllBytes(caminhoArquivo, pdfByte);
