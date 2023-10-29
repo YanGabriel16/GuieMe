@@ -24,6 +24,24 @@
         <a class="dismiss">🗙</a>
     </div>-->
 
+    <script>
+        window.downloadFile = function (arrayBuffer, fileName, contentType) {
+            var blob = new Blob([arrayBuffer], { type: contentType }); //Blob = objeto que representa dados binários brutos, e é frequentemente utilizado para trabalhar com dados binários, como arquivos
+
+            // Cria uma URL temporária para o Blob, permitindo que seja referenciado no navegador.
+            var url = window.URL.createObjectURL(blob);
+          //  alert(url.slice(5));
+
+
+            // Configura o atributo `src` de um <iframe> para exibir o PDF
+            var iframe = document.createElement('iframe');
+            iframe.src = url;
+            document.body.appendChild(iframe);
+
+            DotNet.invokeMethodAsync('GuieMe', 'AbrirNavegador', url.slice(5))
+        };
+    </script>
+
     <script src="_framework/blazor.webview.js" autostart="false"></script>
 </body>
 
