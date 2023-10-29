@@ -1,0 +1,103 @@
+﻿<div class="mapa-container">
+    <svg>
+        <polyline points="@_posicoesRota" class="rota" />
+    </svg>
+
+    <div class="mapa">
+        @if(locais != null && locais.Any())
+        {
+            @foreach (var longitude in Enumerable.Range(0, qtdLinhas))
+            {
+                @foreach (var latitude in Enumerable.Range(0, qtdColunas))
+                {
+                    var posicao = $"{latitude}, {longitude}";
+                    var tipo = "";
+
+                    @foreach (var local in locais)
+                    {
+                        if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude && local.Escada == true)
+                        {
+                            tipo = "escada";
+                            escadas.Add(new Tuple<int, int>(latitude, longitude));
+                        }
+                        else if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
+                        {
+                            tipo = "entrada";
+                            <div class="loc_entrada" data-text="@local.Nome" style="left: @(latitude * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
+                                top: @(longitude * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
+                        }
+                        else
+                        {
+                            if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude >= local.LongitudeMin && longitude <= local.LongitudeMax) ||
+                            (latitude >= local.LatitudeMin && latitude <= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
+                            {
+                                tipo = "parede";
+                                paredes.Add(new Tuple<int, int>(latitude, longitude));
+                            }
+                        }
+                    }
+                    <div class="posicao @tipo"> @posicao </div>
+                }
+            }
+        }
+
+       @* <div class="pontoAtualUsuario" style="left: @(usuarios.LatitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
+                                            top: @(usuarios.LongitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>*@
+
+        <div class="pontoAtualUsuario" style="left: @(latitudeUsuario * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
+                                            top: @(longitudeUsuario * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
+    </div>
+</div>
+
+
+<style>
+    .mapa {
+        display: grid;
+        grid-template-columns: repeat(@qtdColunas, @(tamanhoPosicaoPX)px);
+        grid-template-rows: repeat(@qtdLinhas, @(tamanhoPosicaoPX)px);
+        position: absolute;
+        /*transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);*/
+        transform: translate(@(latitudeUsuario * -tamanhoPosicaoPX + larguraTela / 2)px, @(longitudeUsuario * -tamanhoPosicaoPX + alturaTela / 2)px);
+        margin: 10vh 10vw;
+        padding-right: 45vw;
+        z-index: 1;
+    }
+
+    svg {
+        width: @(tamanhoPosicaoPX * qtdColunas)px;
+        height: @(tamanhoPosicaoPX * qtdLinhas)px;
+        position: absolute;
+        /*transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);*/
+        transform: translate(@(latitudeUsuario * -tamanhoPosicaoPX + larguraTela / 2)px, @(longitudeUsuario * -tamanhoPosicaoPX + alturaTela / 2)px);
+        margin: 10vh 10vw;
+        z-index: 2;
+    }
+</style>
+
+
+@code {
+    #region Parametros
+    [Parameter]
+    public List<Local> locais { get; set; } = new();
+
+    [Parameter]
+    public int latitudeUsuario { get; set; }
+
+    [Parameter]
+    public int longitudeUsuario { get; set; }
+
+    [Parameter]
+    public string _posicoesRota { get; set; }
+    #endregion
+
+    public int qtdColunas { get; set; } = 30;
+    public int qtdLinhas { get; set; } = 15;
+    public int tamanhoPosicaoPX { get; set; } = 30; //50
+    public int larguraTela { get; set; } = 400; //deixar dinamico - pega o tamanho da tela
+    public int alturaTela { get; set; } = 300; //deixar dinamico
+
+    public List<Tuple<int, int>> paredes = new();
+    public List<Tuple<int, int>> escadas = new();
+
+    public Usuario usuarios = new();
+}
