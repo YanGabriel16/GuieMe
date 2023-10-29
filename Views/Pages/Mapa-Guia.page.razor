@@ -209,11 +209,12 @@
         }
     }
 
-    public async Task OnClickVoltarCheckpoint() //TODO: voltar checkpoint quando muda de andar
+    public async Task OnClickVoltarCheckpoint()
     {
         if (!locaisAnteriores.Any()) return;
 
         var localAnterior = locaisAnteriores.Last();
+        var escadaOutroPiso = false;
 
         if (usuarios.LongitudeAtual == localAnterior.LongitudeEntrada
             && usuarios.LatitudeAtual == localAnterior.LatitudeEntrada
@@ -223,18 +224,20 @@
             localAnterior = locaisAnteriores.Last();
         }
 
-        if (localAnterior.Escada) 
-            localAnterior = locais.FindLast(o 
-                => o.LatitudeEntrada == localAnterior.LatitudeEntrada 
-                    && o.LongitudeEntrada == localAnterior.LongitudeEntrada 
-                    && o.Pisoo == usuarios.PisoAtual);
+        if (localAnterior.Escada == true && localAnterior.Pisoo != usuarios.PisoAtual)
+        {
+            escadaOutroPiso = true;
+            localAnterior = locais.FindLast(o => o.LatitudeEntrada == localAnterior.LatitudeEntrada 
+                && o.LongitudeEntrada == localAnterior.LongitudeEntrada 
+                && o.Pisoo == usuarios.PisoAtual);            
+        }
 
         if (localAnterior == null) return;
 
         locaisAnteriores.Remove(locaisAnteriores.Last());
         selecionarLocalCheckpoint(localAnterior);
 
-        if (localAnterior.Escada == false)//TODO: Nao funciona quando usado o dialog de confirmacao (false fixado pra nao usar)
+        if (localAnterior.Escada == false || (localAnterior.Escada == true && localAnterior.Pisoo == usuarios.PisoAtual && escadaOutroPiso == false))
         {
             SelectLocalPartida(localAnterior.Id);
             return;
@@ -270,7 +273,6 @@
             if (trocarAndar)
             {
                 andarPartida = andares.Find(andar => andar.Pisoo == localSelecionadoPartida.Pisoo);
-
                 OnChangeAndar(andarPartida.IndexAndar);
             }
 
@@ -284,7 +286,7 @@
         }
     }
 
-    public void SelectLocalDestino(object id_Local)
+    public void SelectLocalDestino(object id_Local, bool selecionadoInput = false)
     {
         if (id_Local != null)
         {
@@ -299,7 +301,6 @@
             {
                 latitudeDestino = 0;
                 longitudeDestino = 0;
-
                 ZerarRota();
             }
         }
@@ -307,9 +308,7 @@
         andarDestino = andares.Find(andar => andar.Pisoo == localSelecionadoDestino.Pisoo);
 
         if (latitudeDestino != 0 && longitudeDestino != 0)
-        {
             VerificarCaminhoValido(latitudeDestino, longitudeDestino, false);
-        }
     }
 
     public async void VerificarCaminhoValido(int latitudeDestino, int longitudeDestino, bool mostrarMensagemEscada)
