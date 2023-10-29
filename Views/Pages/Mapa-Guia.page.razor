@@ -34,11 +34,11 @@
         <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
     </div>
     <div class="rz-p-xl-12 rz-text-align-center">
-        <RadzenButton Click=@(async args => await OnClickVoltarCheckpoint()) 
-                      Text="Voltar Checkpoint" 
-                      Icon="explore" 
-                      class="rz-border-radius-10 rz-shadow-10" 
-                      ButtonStyle="ButtonStyle.Warning" 
+        <RadzenButton Click=@(async args => await OnClickVoltarCheckpoint())
+                      Text="Voltar Checkpoint"
+                      Icon="explore"
+                      class="rz-border-radius-10 rz-shadow-10"
+                      ButtonStyle="ButtonStyle.Warning"
                       Style="background-color: #FFF200; color: #263A7F;" />
 
         <RadzenButton Click=@(args => OnClickInfoCheckpoint())
@@ -209,50 +209,44 @@
 
     public async Task OnClickVoltarCheckpoint() //TODO: voltar checkpoint quando muda de andar
     {
-        if (locaisAnteriores.Any())
+        if (!locaisAnteriores.Any()) return;
+
+        var localAnterior = locaisAnteriores.Last();
+
+        if (usuarios.LongitudeAtual == localAnterior.LongitudeEntrada
+            && usuarios.LatitudeAtual == localAnterior.LatitudeEntrada
+            && usuarios.PisoAtual == localAnterior.Pisoo)
         {
-            var localAnterior = locaisAnteriores.Last();
-
-            if (usuarios.LongitudeAtual == localAnterior.LongitudeEntrada
-                && usuarios.LatitudeAtual == localAnterior.LatitudeEntrada
-                && usuarios.PisoAtual == localAnterior.Pisoo)
-            {
-                locaisAnteriores.Remove(localAnterior);
-                localAnterior = locaisAnteriores.Last();
-            }
-
-            if (localAnterior.Escada)
-                localAnterior = locais.FindLast(o => o.LatitudeEntrada == localAnterior.LatitudeEntrada
-                                                     && o.LongitudeEntrada == localAnterior.LongitudeEntrada
-                                                     && o.Pisoo == usuarios.PisoAtual);
-
-            if (localAnterior != null)
-            {
-                locaisAnteriores.Remove(locaisAnteriores.Last());
-                valorSelecionadoLocalPartida = localAnterior.Id;
-                usuarios.LatitudeAtual = localAnterior.LatitudeEntrada;
-                usuarios.LongitudeAtual = localAnterior.LongitudeEntrada; //TODO: se a pessoa voltarchepoint até o ponto de partida zerar rota
-
-                if (localAnterior.Escada)//TODO: Nao funciona quando usado o dialog de confirmacao (false fixado pra nao usar)
-                {
-                    var mensagemEscada = locaisAnteriores.Last().Pisoo > localAnterior.Pisoo ? "Subir" : "Descer";
-                    var result = await DialogService.Confirm("Obs.: Negar está opção ira zerar a rota.", $"{mensagemEscada} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
-
-                    if (result.Value == false)
-                    {
-                        localAnterior = locaisAnteriores.Last();
-                        valorSelecionadoLocalPartida = localAnterior.Id;
-                        usuarios.LatitudeAtual = localAnterior.LatitudeEntrada;
-                        usuarios.LongitudeAtual = localAnterior.LongitudeEntrada;
-                        SelectLocalPartida(localAnterior.Id);
-                    }
-                }
-                else
-                {
-                    SelectLocalPartida(localAnterior.Id);
-                }
-            }
+            locaisAnteriores.Remove(localAnterior);
+            localAnterior = locaisAnteriores.Last();
         }
+
+        if (localAnterior.Escada) 
+            localAnterior = locais.FindLast(o 
+                => o.LatitudeEntrada == localAnterior.LatitudeEntrada 
+                    && o.LongitudeEntrada == localAnterior.LongitudeEntrada 
+                    && o.Pisoo == usuarios.PisoAtual);
+
+        if (localAnterior == null) return;
+
+        locaisAnteriores.Remove(locaisAnteriores.Last());
+        selecionarLocalCheckpoint(localAnterior);
+
+        if (localAnterior.Escada == false)//TODO: Nao funciona quando usado o dialog de confirmacao (false fixado pra nao usar)
+        {
+            SelectLocalPartida(localAnterior.Id);
+            return;
+        }
+
+        var mensagemEscada = locaisAnteriores.Last().Pisoo > localAnterior.Pisoo ? "Subir" : "Descer";
+        var result = await DialogService.Confirm("Obs.: Negar está opção ira zerar a rota.", $"{mensagemEscada} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
+
+        if (result.Value == false) return;
+
+        localAnterior = locaisAnteriores.Last();
+
+        selecionarLocalCheckpoint(localAnterior);
+        SelectLocalPartida(localAnterior.Id);
     }
 
     public void SelectLocalPartida(object id_Local, bool trocarAndar = true, bool mostrarMensagemEscada = true)
@@ -584,5 +578,12 @@
         posicoes.Clear();
         this._posicoesRota = null;
         //mapaSegundoAndar.ZerarRota();
+    }
+
+    private void selecionarLocalCheckpoint(Local local)
+    {
+        valorSelecionadoLocalPartida = local.Id;
+        usuarios.LatitudeAtual = local.LatitudeEntrada;
+        usuarios.LongitudeAtual = local.LongitudeEntrada;
     }
 }
