@@ -2,6 +2,8 @@
 using GuieMe.Domain.Interfaces;
 using GuieMe.Domain.Models;
 using SkiaSharp;
+using System.IO;
+using System.Net;
 
 namespace GuieMe.Infra.Services
 {
@@ -11,42 +13,99 @@ namespace GuieMe.Infra.Services
         {
             int largura = 800;
             int altura = 600;
-            SKColor corFundo = SKColors.LightBlue;
-            SKColor corTexto = SKColors.Black;
+
             SKColor corBorda = SKColors.DarkBlue;
             SKColor corBorda2 = SKColors.Yellow;
 
-            using (MemoryStream stream = new MemoryStream())
+            using (MemoryStream stream = new())
             {
                 using (SKDocument documento = SKDocument.CreatePdf(stream))
                 {
                     using (SKCanvas canvas = documento.BeginPage(largura, altura))
                     {
-                        canvas.Clear(corFundo);
+                        string urlImagem = "https://logospng.org/download/unip/logo-unip-vermelha-1024.png";
 
-                        SKPaint paintTexto = new SKPaint
+                        SKBitmap imagem;
+                        DateTime dataCertificado = dados.Data;
+
+                        using (var webClient = new WebClient())
                         {
-                            Color = corTexto,
-                            TextSize = 40.0f,
+                            byte[] data = webClient.DownloadData(urlImagem);
+                            using (var streamBitmap = new MemoryStream(data))
+                            {
+                                imagem = SKBitmap.Decode(streamBitmap);
+                            }
+                        }
+
+                        SKPaint paintTitulo = new()
+                        {
+                            TextSize = 40f,
                             TextAlign = SKTextAlign.Center,
                             IsAntialias = true
                         };
 
-                        string dataFormatada = dados.Data.ToString("dd/MM/yyyy HH:mm");
-                        float x = largura / 2;
-                        float y = altura / 2 - paintTexto.TextSize;
-                        canvas.DrawText(dados.AlunoNome, x, y, paintTexto);
-                        y += paintTexto.TextSize * 1.5f;
-                        canvas.DrawText("RA: " + dados.AlunoRA, x, y, paintTexto);
-                        y += paintTexto.TextSize * 1.5f;
-                        canvas.DrawText("Horas: " + dados.QuantidadeHoras, x, y, paintTexto);
-                        y += paintTexto.TextSize * 1.5f;
-                        canvas.DrawText("Data: " + dataFormatada, x, y, paintTexto);
-                        y += paintTexto.TextSize * 1.5f;
-                        canvas.DrawText("Curso: " + dados.AlunoCurso, x, y, paintTexto);
+                        SKPaint paintTexto = new()
+                        {
+                            TextSize = 15f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true
+                        };
 
-                        // Configurações de borda
-                        SKPaint paintBorda = new SKPaint
+                        SKPaint paintNegrito = new()
+                        {
+                            TextSize = 14f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true,
+                            FakeBoldText = true 
+                        };
+
+                        string dataFormatada = $"{dataCertificado.Day} de {dataCertificado.ToString("MMMM")} de {dataCertificado.Year}";
+                        float x = largura / 2;
+                        float y = altura / 4 - paintTexto.TextSize;
+
+                        float larguraImagem = 200;
+                        float alturaImagem = 140; 
+
+                        if (imagem != null)
+                        {
+                            SKRect destino = new SKRect(20, 10, 10 + larguraImagem, 10 + alturaImagem);
+                            canvas.DrawBitmap(imagem, destino);
+                        }
+
+                        string titulo = $"Certificado";
+                        canvas.DrawText(titulo, x, y, paintTitulo);
+                        y += paintTexto.TextSize * 6f; 
+
+                        string[] linhas = {
+                            $"Certifico que {dados.AlunoNome.ToUpper()}, RA: {dados.AlunoRA.ToUpper()}, concluiu com êxito os objetivos propostos no",
+                            $"aplicativo GuieMe, com carga horária de 10 horas, realizada no dia {dataFormatada}, na Universidade",
+                            $"Paulista Campus Sorocaba."
+                        };
+
+                        foreach (string linha in linhas)
+                        {
+                            canvas.DrawText(linha, x, y, paintTexto);
+                            y += paintTexto.TextSize * 1.5f; 
+                        }
+                        y += paintTexto.TextSize * 7f;
+
+                        string texto2 = $"Sorocaba, {dataFormatada}";
+                        canvas.DrawText(texto2, x, y, paintTexto);
+                        y += paintTexto.TextSize * 7f;
+
+                        string[] linhas2 = {
+                            $"Prof. Respons",
+                            $"Coordenador do Curso de Ciencia da Computação",
+                            $"UNIP - Sorocaba"
+                        };
+
+                        foreach (string linha in linhas2)
+                        {
+                            canvas.DrawText(linha, x, y, paintNegrito);
+                            y += paintTexto.TextSize * 1f; 
+                        }
+
+                        SKPaint paintBorda = new()
                         {
                             Color = corBorda,
                             StrokeWidth = 10,
@@ -54,12 +113,10 @@ namespace GuieMe.Infra.Services
                             Style = SKPaintStyle.Stroke
                         };
 
-                        // Desenha a borda do certificado
-                        SKRect rect = new SKRect(0, 0, largura, altura);
+                        SKRect rect = new(0, 0, largura, altura);
                         canvas.DrawRoundRect(rect, 20, 20, paintBorda);
 
-                        // Configurações de segunda borda
-                        SKPaint paintBorda2 = new SKPaint
+                        SKPaint paintBorda2 = new()
                         {
                             Color = corBorda2,
                             StrokeWidth = 5,
@@ -67,14 +124,11 @@ namespace GuieMe.Infra.Services
                             Style = SKPaintStyle.Stroke
                         };
 
-                        // Desenha uma segunda borda dentro da primeira
                         rect.Inflate(-10, -10);
                         canvas.DrawRoundRect(rect, 20, 20, paintBorda2);
                     }
-
                     documento.EndPage();
                 }
-
                 byte[] pdfBytes = stream.ToArray();
                 return pdfBytes;
             }
@@ -86,7 +140,7 @@ namespace GuieMe.Infra.Services
             {
                 string fileName = "GuieMeCertificado.pdf";
                 var pdfByte = CriarPDF(certificadoDados);
-                string caminhoArquivo = System.IO.Path.Combine(FileSystem.CacheDirectory, fileName);
+                string caminhoArquivo = Path.Combine(FileSystem.CacheDirectory, fileName);
 
                 File.WriteAllBytes(caminhoArquivo, pdfByte);
                 Launcher.OpenAsync(new OpenFileRequest
