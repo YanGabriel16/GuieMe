@@ -1,11 +1,11 @@
-﻿using Aspose.Html.Dom;
-using GuieMe.Domain.Helpers;
+﻿using GuieMe.Domain.Helpers;
+using GuieMe.Domain.Interfaces;
 using GuieMe.Domain.Models;
 using SkiaSharp;
 
 namespace GuieMe.Infra.Services
 {
-    public class PdfService
+    public class PdfService : IPdfService
     {
         public byte[] CriarPDF(CertificadoDados dados)
         {

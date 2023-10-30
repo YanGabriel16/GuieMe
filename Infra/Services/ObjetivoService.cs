@@ -1,10 +1,6 @@
-﻿using Aspose.Html;
-using Aspose.Html.Converters;
-using Aspose.Html.Saving;
-using GuieMe.Domain.Helpers;
+﻿using GuieMe.Domain.Helpers;
 using GuieMe.Domain.Interfaces;
 using GuieMe.Domain.Models;
-using System.Net.Http;
 
 namespace GuieMe.Infra.Services
 {

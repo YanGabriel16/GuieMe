@@ -33,6 +33,7 @@ public static class MauiProgram
         builder.Services.AddScoped<IObjetivoService, ObjetivoService>();
         builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 		builder.Services.AddScoped<IHelperService, HelperService>();
+        builder.Services.AddScoped<IPdfService, PdfService>();
         builder.Services.AddBlazorWebViewDeveloperTools();//TODO: Retirar 
 
         builder.Services.AddScoped<DialogService>();

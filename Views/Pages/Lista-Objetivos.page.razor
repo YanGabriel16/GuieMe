@@ -6,6 +6,7 @@
 
 @inject IObjetivoService _objetivoService;
 @inject IUsuarioService _usuarioService;
+@inject IPdfService _pdfService;
 @inject DialogService DialogService
 
 <div class="header">
@@ -99,7 +100,7 @@
 
     public async void OnClickGerarCertificado()
     {
-        if(usuarioLogado != null && !string.IsNullOrEmpty(usuarioLogado.RA) && usuarioLogado.TodosObjetivosForamConcluidos == false)
+        if(usuarioLogado == null || !string.IsNullOrEmpty(usuarioLogado.RA) || usuarioLogado.TodosObjetivosForamConcluidos == false || false) //TODO: retirar false, momentaneo para teste
         {
             var mensagem = $@"
     Para gerar o certificado é necessário:<br>
@@ -110,8 +111,7 @@
         }
 
         var certificadoDados = await _objetivoService.GetDadosCertificado();
-        PdfService service = new PdfService();
-        service.GerarAbrirCertificadoPDF(certificadoDados);
+        _pdfService.GerarAbrirCertificadoPDF(certificadoDados);
     }
 
     public void OnClickInfoObjetivos()
