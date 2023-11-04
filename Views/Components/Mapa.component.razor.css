@@ -1,5 +1,5 @@
 ﻿.posicao {
-    /*border: 1px solid #ccc;*/
+    border: 1px solid #ccc;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -7,15 +7,23 @@
 }
 
 .parede {
-    background-color: #E1E1E1;
-}
-
-.entrada {
-    background-color: white;
+    background-color: #ffde0a;
+    border: groove;
 }
 
 .escada {
-    background-color: greenyellow;
+    background-image: url(/images/escada3.png);
+    background-size: contain;
+    width: 30px;
+    height: 30px;
+}
+
+.entrada {
+    width: 30px;
+    height: 30px;
+    background-image: url(/images/porta.png);
+    background-size: contain;
+    z-index: 4;
 }
 
 .rota {
@@ -23,29 +31,8 @@
     stroke-width: 4;
     fill: none;
     left: 0;
-    /*stroke-dasharray: 3, 14;*/
     z-index: 3;
 }
-
-.loc_entrada {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background-image: url(/images/loc_grey.png);
-    background-size: contain;
-    justify-content: center;
-    font-family: OCR A Std, monospace;
-    font-size: 14px;
-    font-weight: bold;
-    z-index: 4;
-}
-
-    .loc_entrada::before {
-        content: attr(data-text);
-        position: absolute;
-        top: -20px;
-        white-space: nowrap;
-    }
 
 .pontoAtualUsuario {
     position: absolute;
@@ -59,9 +46,29 @@
 
 .mapa-container {
     position: absolute;
-    background-color: white;
     overflow: scroll;
     width: 100vw;
     height: 100vh;
     z-index: 0;
 }
+
+.balao {
+    background: #7e57c2;
+    line-height: 0.1em;
+    border-radius: 15px;
+    width: 185px;
+    height: 40px;
+    color: #fff;
+    padding: 20px;
+    position: absolute;
+    text-align: center;
+}
+    .balao:after {
+        position: absolute;
+        content: "";
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 20px solid #7e57c2;
+        top: 40px;
+        left: 55%;
+    }
