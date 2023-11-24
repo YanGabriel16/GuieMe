@@ -23,7 +23,7 @@
                         else if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
                         {
                             tipo = "entrada";
-                                <span class="balao" style="left: @(latitude * tamanhoPosicaoPX - 93)px; top: @(longitude * tamanhoPosicaoPX - 65)px;">@local.Nome</span>
+                                <span class="balao" style="left: @(latitude * tamanhoPosicaoPX - 40)px; top: @(longitude * tamanhoPosicaoPX - 40)px;"> @local.Nome </span>
                         }
                         else
                         {
@@ -87,7 +87,7 @@
 
     public int qtdColunas { get; set; } = 60;
     public int qtdLinhas { get; set; } = 46;
-    public int tamanhoPosicaoPX { get; set; } = 30;
+    public int tamanhoPosicaoPX { get; set; } = 20;
     public int larguraTela { get; set; } = 400; 
     public int alturaTela { get; set; } = 300;
 

@@ -10,41 +10,40 @@
 @inject DialogService DialogService
 
 
-<div class="header">
+<div class="header" style="margin-top: 50px">
     <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
         <AppMenu_component></AppMenu_component>
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Local De Partida</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
-                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o local de partida"
+                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o local de Partida"
                         Change=@(id_Local => SelectLocalPartida(id_Local)) Style="width: 95%; max-width: 400px;">
         </RadzenDropDown>
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-5">
-        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Local De Destino</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalDestido AllowClear="true"
-                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o local de destino"
+                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o local de Destino"
                         Change=@(id_Local => SelectLocalDestino(id_Local)) Style="width: 95%; max-width: 400px;">
         </RadzenDropDown>
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        <RadzenButton Click=@(args => OnClickCheckpoint())
+                      Text="Checkpoint" Icon="explore"
+                      class="rz-border-radius-10 rz-shadow-10"
+                      Style="background-color: #FFF200; color: #263A7F; font-size: 11px" />
     </div>
+
     <div class="rz-p-xl-12 rz-text-align-center">
         <RadzenButton Click=@(async args => await OnClickVoltarCheckpoint())
-                      Text="Voltar Checkpoint"
-                      Icon="explore"
+                      Text="Voltar Checkpoint" Icon="explore"
                       class="rz-border-radius-10 rz-shadow-10"
-                      ButtonStyle="ButtonStyle.Warning"
-                      Style="background-color: #FFF200; color: #263A7F;" />
+                      Style="background-color: #FFF200; color: #263A7F; font-size: 11px" />
 
         <RadzenButton Click=@(args => OnClickInfoCheckpoint())
                       Icon="help_outline"
-                      ButtonStyle="ButtonStyle.Primary"
                       class="rz-border-radius-10 rz-shadow-10"
                       Style="background-color: #FFF200; color: #263A7F;" />
     </div>
@@ -72,7 +71,7 @@
     private Mapa_component mapaSubSolo;
     private Mapa_component mapaTerreo;
 
-    private int indexAndarAtivo = 0;
+    private int indexAndarAtivo = 1;
     private bool alertChegou = false;
 
     static int tamanhoPosicaoPX { get; set; } = 30;
