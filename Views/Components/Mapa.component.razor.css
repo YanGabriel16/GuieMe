@@ -56,7 +56,7 @@
     background: #7e57c2;
     line-height: 0.1em;
     border-radius: 15px;
-    width: 185px;
+    width: auto;
     height: 40px;
     color: #fff;
     padding: 20px;
@@ -70,5 +70,5 @@
         border-right: 15px solid transparent;
         border-top: 20px solid #7e57c2;
         top: 40px;
-        left: 55%;
+        left: 40%;
     }

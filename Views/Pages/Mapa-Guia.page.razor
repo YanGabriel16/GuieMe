@@ -58,19 +58,19 @@
 {
     <RadzenTabs Change=@OnChangeAndar @bind-SelectedIndex=@indexAndarAtivo TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
         <Tabs>
-            <RadzenTabsItem Disabled="@dabilitarTab" Text="Térreo">
-                <Mapa_component @ref="mapaTerreo" locais="@getLocaisAndar(1)" _posicoesRota="@_posicoesRota" usuarios="@usuarios"></Mapa_component>
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="SubSolo">
+                <Mapa_component @ref="mapaSubSolo" locais="@getLocaisAndar(1)" _posicoesRota="@_posicoesRota" usuarios="@usuarios"></Mapa_component>
             </RadzenTabsItem>
-            <RadzenTabsItem Disabled="@dabilitarTab" Text="Primeiro Andar">
-                <Mapa_component @ref="mapaPrimeiroAndar" locais="@getLocaisAndar(2)" _posicoesRota="@_posicoesRota" usuarios="@usuarios"></Mapa_component>
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="Térreo">
+                <Mapa_component @ref="mapaTerreo" locais="@getLocaisAndar(2)" _posicoesRota="@_posicoesRota" usuarios="@usuarios"></Mapa_component>
             </RadzenTabsItem>
         </Tabs>
     </RadzenTabs>
 }
 
 @code {
+    private Mapa_component mapaSubSolo;
     private Mapa_component mapaTerreo;
-    private Mapa_component mapaPrimeiroAndar;
 
     private int indexAndarAtivo = 0;
     private bool alertChegou = false;
@@ -117,9 +117,6 @@
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
 
         locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
-
-
-
     }
 
     List<Local> getLocaisAndar(int piso)
@@ -174,13 +171,10 @@
                             {
                                 escadaCheckpoint = local;
                                 if (localSelecionadoDestino.Pisoo > usuarios.PisoAtual)
-                                {
                                     await MostrarMensagemEscada("Subir");
-                                }
+
                                 else
-                                {
                                     await MostrarMensagemEscada("Descer");
-                                }
                             }
                             else
                             {
@@ -188,17 +182,14 @@
                             }
 
                             if (usuarios.LatitudeAtual == latitudeDestino && usuarios.LongitudeAtual == longitudeDestino)
-                            {
                                 await VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual);
-                            }
+
                             return;
                         }
                     }
                 }
             }
         }
-
-
     }
 
     public async Task OnClickVoltarCheckpoint()
@@ -244,13 +235,11 @@
 
         selecionarLocalCheckpoint(localAnterior);
         SelectLocalPartida(localAnterior.Id);
-
-
     }
 
     public void SelectLocalPartida(object id_Local, bool trocarAndar = true, bool mostrarMensagemEscada = true)
     {
-        ZerarRota(); //??
+        ZerarRota();
 
         if (id_Local != null)
         {
@@ -263,18 +252,19 @@
                 usuarios.PisoAtual = localSelecionadoPartida.Pisoo;
             }
 
-            if (trocarAndar)
+            if (localSelecionadoPartida != null)
             {
-                andarPartida = andares.Find(andar => andar.Pisoo == localSelecionadoPartida.Pisoo);
-                OnChangeAndar(andarPartida.IndexAndar);
+                if (trocarAndar)
+                {
+                    andarPartida = andares.Find(andar => andar.Pisoo == localSelecionadoPartida.Pisoo);
+                    OnChangeAndar(andarPartida.IndexAndar);
+                }
             }
 
             if (latitudeDestino != 0 && longitudeDestino != 0)
             {
                 if (andarPartida.IndexAndar == indexAndarAtivo)
-                {
                     VerificarCaminhoValido(latitudeDestino, longitudeDestino, mostrarMensagemEscada);
-                }
             }
         }
     }
@@ -299,7 +289,9 @@
                 ZerarRota();
             }
         }
-        andarDestino = andares.Find(andar => andar.Pisoo == localSelecionadoDestino.Pisoo);
+
+        if (localSelecionadoDestino != null)
+            andarDestino = andares.Find(andar => andar.Pisoo == localSelecionadoDestino.Pisoo);
 
         if (latitudeDestino != 0 && longitudeDestino != 0)
             VerificarCaminhoValido(latitudeDestino, longitudeDestino, false);
@@ -367,13 +359,10 @@
         else if (VerificarEscada(usuarios.LatitudeAtual, usuarios.LongitudeAtual) && andarDestino.IndexAndar != indexAndarAtivo)
         {
             if (localSelecionadoDestino.Pisoo > usuarios.PisoAtual && mostrarMensagemEscada)
-            {
                 await MostrarMensagemEscada("Subir");
-            }
+
             else if (mostrarMensagemEscada)
-            {
                 await MostrarMensagemEscada("Descer");
-            }
         }
         else
         {
@@ -424,25 +413,19 @@
     public bool VerificarParede(int latitude, int longitude)
     {
         if (indexAndarAtivo == 0)
-        {
-            return mapaTerreo.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
-        }
+            return mapaSubSolo.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+
         else
-        {
-            return mapaPrimeiroAndar.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
-        }
+            return mapaTerreo.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
     }
 
     public bool VerificarEscada(int latitude, int longitude)
     {
         if (indexAndarAtivo == 0)
-        {
-            return mapaTerreo.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
-        }
+            return mapaSubSolo.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+
         else
-        {
-            return mapaPrimeiroAndar.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
-        }
+            return mapaTerreo.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
     }
 
     public void GerarRota()
