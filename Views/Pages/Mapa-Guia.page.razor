@@ -6,6 +6,7 @@
 @using GuieMe.Domain.Interfaces;
 
 @inject ILocalService LocalService
+@inject IUsuarioService _usuarioService
 @inject IObjetivoService _objetivoService
 @inject DialogService DialogService
 
@@ -111,11 +112,36 @@
     protected override async Task OnInitializedAsync()
     {
         _objetivoService.ConcluirObjetivo(Constants.LocalAtualId);
+
         locais = LocalService.Locais();
         andares = LocalService.Andares();
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
-
         locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
+        this.usuarios = await _usuarioService.GetUsuario();
+
+        if (Constants.LocalAtualId != 0)
+        {
+            this.valorSelecionadoLocalPartida = Constants.LocalAtualId;
+            var localAtual = this.locais.First(x => x.Id == Constants.LocalAtualId);
+
+            if (localAtual != null)
+            {
+                this.usuarios.LatitudeAtual = localAtual.LatitudeEntrada;
+                this.usuarios.LongitudeAtual = localAtual.LongitudeEntrada;
+                this.usuarios.PisoAtual = localAtual.Pisoo;
+
+                switch(localAtual.Pisoo)
+                {
+                    case 1:
+                        this.indexAndarAtivo = 0;
+                        break;
+
+                    case 2:
+                        this.indexAndarAtivo = 1;
+                        break;
+                }
+            }
+        }
     }
 
     List<Local> getLocaisAndar(int piso)
@@ -128,7 +154,7 @@
     {
         var mensagem = $@"
     1- O botão de 'CheckPoint' move o ponto atual do usuário para o próximo ponto de referência; <br><br>
-    2- O botão de `'Voltar CheckPoint' move o ponto atual do usuário de volta para o ponto de referência anterior.";
+    2- O botão de 'Voltar CheckPoint' move o ponto atual do usuário de volta para o ponto de referência anterior.";
         DialogService.Alert(mensagem, "Checkpoint Duvidas", new AlertOptions() { OkButtonText = "Ok" });
     }
 

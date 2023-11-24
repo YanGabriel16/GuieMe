@@ -5,6 +5,7 @@
 @using GuieMe.Domain.Interfaces;
 
 @inject IObjetivoService _objetivoService;
+@inject IHelperService _helperService;
 @inject IUsuarioService _usuarioService;
 @inject IPdfService _pdfService;
 @inject DialogService DialogService
@@ -35,8 +36,18 @@
                 PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
                 string icon() => progresso == 1 ? "check" : "more_horiz";
                 string mensagem() => progresso == 1 ? "Concluído" : "Em Andamento";
+                var objetivoHeader = "Cursos: Todos";
+
+                if (objetivo.CursoId != null)
+                {
+                    var curso = cursos.First(x => x.Id == objetivo.CursoId);
+                    if (curso != null)
+                        objetivoHeader = $"Curso: {curso.Nome}";
+
+                }
 
                 <RadzenPanel AllowCollapse="false" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
+                    <RadzenText Class="rz-m-0" TextStyle="TextStyle.DisplayH6" Style="color: #1051f2;">@objetivoHeader</RadzenText>
                     <RadzenTimeline Orientation="Orientation.Vertical" LinePosition="LinePosition.Center"
                                     style="--rz-timeline-line-width: 36px; max-width: 600px; margin: 0 auto;">
                         <Items>
@@ -77,9 +88,11 @@
     int quantidadeObjetivos;
     int quantidadeObjetivosConcluidos;
     bool todosObjetivosConcluidos;
+    List<Curso> cursos = new();
 
     protected override async Task OnInitializedAsync()
     {
+        cursos = _helperService.GetCursos();
         usuarioLogado = await _usuarioService.GetUsuario();
         objetivos = _objetivoService.GetObjetivos(usuarioLogado.Curso?.Id);
         quantidadeObjetivos = objetivos.Count;
@@ -103,10 +116,10 @@
         if(usuarioLogado == null || !string.IsNullOrEmpty(usuarioLogado.RA) || usuarioLogado.TodosObjetivosForamConcluidos == false || false) //TODO: retirar false, momentaneo para teste
         {
             var mensagem = $@"
-    Para gerar o certificado é necessário:<br>
-    1- Que o usuário informe os dados pro sistema;<br>
-    2- Que o usuário tenha concluido todos os objetivos.";
-            await DialogService.Alert(mensagem, "Não foi possivel gerar o certificado!", new AlertOptions() { OkButtonText = "Ok" });
+    Para gerar o certificado é necessário que:<br>
+    1- O usuário informe os dados para o sistema;<br>
+    2- O usuário tenha concluído todos os objetivos.";
+            await DialogService.Alert(mensagem, "Não foi possível gerar o certificado!", new AlertOptions() { OkButtonText = "Ok" });
             return;
         }
 
@@ -117,13 +130,13 @@
     public void OnClickInfoObjetivos()
     {
         var mensagem = $@"
-    1- Os objetivos so são concluidos ao ler um QR code do local e abrir o aplicativo com o mesmo;<br><br>
-    2- Para abrir o aplicativo com o QR code basta scannear o mesmo com a camera do celular, clicar no link lido e em seguida abrir com o aplicativo GuieMe;<br>
-        Obs.: Alguns celulares abrem o link no navegador e ficam com o icone do aplicativo no canto superior direito, clicando no icone do aplicativo o mesmo abre o link pelo aplicativo selecionado;<br><br>
-    3- Os certificados so são disponibilizados para serem gerados após concluir todos os objetivos;<br><br>
-    4- Objetivos são separados por cursos, cada curso tem seus objetivos(locais da universidade a serem conhecidos), por isso é necessario informar seus dados na tela de login local acessado pelo menu;<br><br>
-    5- Alguns dados são necessarios para gerar o certificado, como RA, nome e curso que o usuario está realizando na universidade;<br><br>
-    6- Para validar o certificado basta levar para o coordenador do seu curso.";
+    1- Os objetivos são concluídos ao ler um QR code do local e abrir o aplicativo correspondente;<br><br>
+    2- Para abrir o aplicativo com o QR code, basta escaneá-lo com a câmera do celular, clicar no link lido e, em seguida, abrir o aplicativo GuieMe;<br>
+    Obs.: Alguns celulares abrem o link no navegador e exibem o ícone do aplicativo no canto superior direito; ao clicar no ícone do aplicativo, o link será aberto pelo aplicativo selecionado;<br><br>
+    3- Os certificados só estão disponíveis para serem gerados após a conclusão de todos os objetivos;<br><br>
+    4- Os objetivos são separados por cursos; cada curso tem seus objetivos, que são locais específicos da universidade a serem conhecidos. Portanto, é necessário informar seus dados na tela de login local acessada pelo menu;<br><br>
+    5- Alguns dados são necessários para gerar o certificado, como RA, nome e curso que o usuário está realizando na universidade;<br><br>
+    6- Para validar o certificado, basta levá-lo ao coordenador do seu curso.";
         DialogService.Alert(mensagem, "Objetivos Duvidas", new AlertOptions() { OkButtonText = "Ok" });
     }
 }
