@@ -24,6 +24,8 @@ namespace GuieMe.Infra.Services
 
         public async void AtualizarUsuario(Usuario usuario)
         {
+            usuario.ObjetivosConcluidos = new List<Objetivo>();
+            usuario.TodosObjetivosForamConcluidos = false;
             await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
         }
 

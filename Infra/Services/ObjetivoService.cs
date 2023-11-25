@@ -1,10 +1,6 @@
-﻿using Aspose.Html;
-using Aspose.Html.Converters;
-using Aspose.Html.Saving;
-using GuieMe.Domain.Helpers;
+﻿using GuieMe.Domain.Helpers;
 using GuieMe.Domain.Interfaces;
 using GuieMe.Domain.Models;
-using System.Net.Http;
 
 namespace GuieMe.Infra.Services
 {
@@ -28,50 +24,51 @@ namespace GuieMe.Infra.Services
 
             Objetivo objetivo = objetivos.FirstOrDefault(x => x.LocalId == localId);
 
-            if (objetivo != null && !usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
+            if (objetivo == null) return;
+
+            if (!usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
                 usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();
                 await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
             }
+
+            if (usuario.ObjetivosConcluidos.Count >= objetivos.Count)
+            {
+                usuario.TodosObjetivosForamConcluidos = true;
+                _usuarioService.AtualizarUsuario(usuario);
+            }
         }
 
-        public async Task<bool> GerarCertificado()
+        public async Task<CertificadoDados> GetDadosCertificado()
         {
             Usuario usuario = await _usuarioService.GetUsuario();
-
-            //if (usuario.TodosObjetivosForamConcluidos.HasValue 
-               // && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
-
             int horas = usuario.ObjetivosConcluidos.Count;
             DateTime data = DateTime.Now;
 
-            //TODO: Criar modelo de certificacao
-            string conteudoHtml = $@"
-Certificamos que o aluno {usuario.Nome} {usuario.Sobrenome}, do curso {usuario.Curso.Nome}, do RA {usuario.RA}
-concluiu todos os objetivos de conhecimento do campus, no dia {data.Date}. 
-com uma carga horaria de {horas}.
-";
-            HTMLDocument certificado = new(conteudoHtml);
-            
-            string savePath = Path.Combine(@"\storage\emulated\0\Download\certificado-guieMe.pdf");
+            CertificadoDados certificadoDados = new()
+            {
+                Data = data,
+                QuantidadeHoras = horas,
+                AlunoNome = $"{usuario.Nome} {usuario.Sobrenome}",
+                AlunoCurso = usuario.Curso.Nome,
+                AlunoRA = usuario.RA,
+            };
 
-            Converter.ConvertHTML(certificado, new PdfSaveOptions(), savePath);
+            if (usuario.CertificadoData == null)
+                _usuarioService.AtualizarDataCertificacao();
 
-            _usuarioService.AtualizarDataCertificacao();
-
-            return true;
+            return certificadoDados;
         }
 
         public List<Objetivo> GetObjetivos(int? cursoId)
         {
             var objetivos = new List<Objetivo>()
             {
-                new Objetivo(0, 0, null, "Inicie reconhecendo o predio principal"),
-                new Objetivo(1, 4, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos calouros pode resolver alguns (se você for um calouro(a))"),
-                new Objetivo(2, 1, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos veteranos pode resolver alguns (se você for um veterano(a))"),
-                new Objetivo(3, 5, null, "Nem todos os problemas podemos resolver nas secretarias, as vezes você pode achar a solução aqui"),
-                new Objetivo(4, 2, null, "As vezes é necessário uma lembrancinha academica ou até materiais academicos..."),
+                new Objetivo(1, 28, null, "Uma boa vida acadêmica decorre da habilidade em resolver problemas, e a secretaria dos calouros pode auxiliar em alguns (se você for um calouro(a))."),
+                new Objetivo(2, 27, null, "Uma boa vida acadêmica resulta da habilidade em resolver problemas, e a secretaria dos veteranos pode ajudar com alguns (se você for um veterano(a))."),
+                new Objetivo(3, 1, null, "Nem todos os problemas podemos resolver nas secretarias; às vezes, você pode encontrar a solução aqui."),
+                new Objetivo(4, 6, null, "Às vezes é necessário uma lembrancinha acadêmica ou até materiais acadêmicos...."),
             };
 
             var locais = _localService.Locais();

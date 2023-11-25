@@ -5,7 +5,7 @@ namespace GuieMe.Domain.Interfaces
     public interface IObjetivoService
     {
         void ConcluirObjetivo(int idObjetivo);
-        Task<bool> GerarCertificado();
+        Task<CertificadoDados> GetDadosCertificado();
         List<Objetivo> GetObjetivos(int? cursoId);
     }
 }

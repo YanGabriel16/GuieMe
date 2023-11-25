@@ -3,8 +3,9 @@
 @using GuieMe.Domain.Interfaces;
 @using GuieMe.Views.Components
 
-@inject IHelperService HelperService;
-@inject IUsuarioService UsuarioService;
+@inject IHelperService _helperService;
+@inject IUsuarioService _usuarioService;
+@inject DialogService _dialogService
 @inject NavigationManager Navigation
 
 <div class="header">
@@ -12,38 +13,39 @@
         <AppMenu_component></AppMenu_component>
     </div>
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <h2 style="color: #FFF200;">Login</h2>
+        <h2 style="color: #FFF200;"> Informações pessoais </h2>
     </div>
 
-    @if (usuarioLogado != null)
+    @if (usuario != null)
     {
-        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2" style="margin-top: 30px;">
             <RadzenFormField Text="Nome" Variant="@variant">
-                <RadzenTextBox @bind-Value="@usuarioLogado.Nome" />
+                <RadzenTextBox @bind-Value="@usuario.Nome" />
             </RadzenFormField>
         </div>
 
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
             <RadzenFormField Text="Sobrenome" Variant="@variant">
-                <RadzenTextBox @bind-Value="@usuarioLogado.Sobrenome" />
+                <RadzenTextBox @bind-Value="@usuario.Sobrenome" />
             </RadzenFormField>
         </div>
 
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
             <RadzenFormField Text="RA" Variant="@variant">
-                <RadzenTextBox @bind-Value="@usuarioLogado.RA" />
+                <RadzenTextBox @bind-Value="@usuario.RA" />
             </RadzenFormField>
         </div>
 
+        <RadzenText style="color: #FFF200; margin-top: 30px; margin-left: 5%"> Curso: </RadzenText>
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenDropDown class="rz-border-radius-10" Data="Cursos" TextProperty="Nome" ValueProperty="Id" @bind-Value=@usuarioLogado.Curso.Id AllowClear="true"
+            <RadzenDropDown class="rz-border-radius-10" Data="Cursos" TextProperty="Nome" ValueProperty="Id" @bind-Value=@usuario.Curso.Id AllowClear="true"
                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o curso"
                             Change=@(x => SelectCurso(x)) Style="width: 95%; max-width: 400px;">
             </RadzenDropDown>
         </div>
 
-        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenButton Click=@(args => OnClickLogar()) Text="Logar" Icon="account_circle" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
+        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2" style="margin-top: 60px; margin-bottom: 90px;">
+            <RadzenButton Click=@(async args => await OnClickSalvarDados()) Text="Salvar dados" Icon="account_circle" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
         </div>
     }
 </div>
@@ -52,23 +54,38 @@
 @code {
     Variant variant = Variant.Outlined;
     List<Curso> Cursos;
-    Usuario usuarioLogado;
+    Usuario usuario;
 
     protected override async Task OnInitializedAsync()
     {
-        usuarioLogado = await UsuarioService.GetUsuario();
-        Cursos = HelperService.GetCursos();
+        usuario = await _usuarioService.GetUsuario();
+        Cursos = _helperService.GetCursos();
     }
 
-    public void OnClickLogar()
+    public async Task OnClickSalvarDados()
     {
-        UsuarioService.AtualizarUsuario(usuarioLogado);
-        Navigation.NavigateTo("/");
+        var mensagem = $@"
+Confirme seus dados antes de salvar.<br><br>
+Nome: {usuario.Nome}<br>
+Sobrenome: {usuario.Sobrenome}<br>
+RA: {usuario.RA}<br>
+Curso: {usuario.Curso.Nome}<br><br>
+Aviso: está opção zera os objetivos!<br>
+Obs.: Caso seja a primeira vez inserindo seus dados ignore o aviso acima.";
+
+        var result = await _dialogService.Confirm(mensagem, $"Salvar dados?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
+
+        if (result == true)
+        {
+            _usuarioService.AtualizarUsuario(usuario);
+            Navigation.NavigateTo("/");
+            return;
+        }
     }
-   
+
     public void SelectCurso(object cursoId)
     {
         if (cursoId != null)
-            usuarioLogado.Curso = Cursos.FirstOrDefault(x => x.Id == (int)cursoId);
+            usuario.Curso = Cursos.FirstOrDefault(x => x.Id == (int)cursoId);
     }
 }

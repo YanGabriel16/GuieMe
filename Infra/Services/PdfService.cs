@@ -1,125 +1,146 @@
 ﻿using GuieMe.Domain.Helpers;
 using GuieMe.Domain.Interfaces;
-using PdfSharpCore.Drawing;
-using PdfSharpCore.Pdf;
-using System.IO;
+using GuieMe.Domain.Models;
 using SkiaSharp;
+using System.IO;
+using System.Net;
 
 namespace GuieMe.Infra.Services
 {
-    public class PdfService
+    public class PdfService : IPdfService
     {
-        public void CriarPdfESalvar2()
+        public byte[] CriarPDF(CertificadoDados dados)
         {
-            //string diretorioApp = AppDomain.CurrentDomain.BaseDirectory;
-            //string pastaPdf = Path.Combine(diretorioApp, "PDFs");
-            //string nomeArquivo = "arquivo.pdf";
-            //string caminhoPdf = Path.Combine(pastaPdf, nomeArquivo);
+            int largura = 800;
+            int altura = 600;
 
-            //if (!Directory.Exists(pastaPdf))
-            //{
-            //    Directory.CreateDirectory(pastaPdf);
-            //}
+            SKColor corBorda = SKColors.DarkBlue;
+            SKColor corBorda2 = SKColors.Yellow;
 
-            //Constants.rotaPdf = caminhoPdf;
-
-            //using (var documento = new PdfSharpCore.Pdf.PdfDocument())
-            //{
-            //    documento.Info.Title = "Meu Arquivo PDF";
-            //    PdfSharpCore.Pdf.PdfPage pagina = documento.AddPage();
-            //    XGraphics graficos = XGraphics.FromPdfPage(pagina);
-            //    XFont fonte = new XFont("Verdana", 20, XFontStyle.Bold);
-
-            //    graficos.DrawString("Olá, este é o meu PDF!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-            //    documento.Save(caminhoPdf);
-
-            string pastaPdf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arquivo.pdf");
-
-            using (var documento = new PdfSharpCore.Pdf.PdfDocument())
+            using (MemoryStream stream = new())
             {
-                documento.Info.Title = "Meu Arquivo PDF";
-                PdfSharpCore.Pdf.PdfPage pagina = documento.AddPage();
-                XGraphics graficos = XGraphics.FromPdfPage(pagina);
-                XFont fonte = new XFont("Verdana", 20, XFontStyle.Regular);
-
-                graficos.DrawString("Olá, este é o meu PDF!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-                documento.Save(pastaPdf);
-            }
-        }
-
-
-        //public byte[] CriarPdf()
-        //{
-        //    using (var memoryStream = new MemoryStream())
-        //    {
-        //        using (var documento = new PdfDocument())
-        //        {
-        //            documento.Info.Title = "Meu Arquivo PDF";
-        //            PdfPage pagina = documento.AddPage();
-        //            XGraphics graficos = XGraphics.FromPdfPage(pagina);
-        //            XFont fonte = new XFont("Verdana", 20, XFontStyle.Regular);
-
-        //            graficos.DrawString("Olá, este é o meu PDF em byte!", fonte, XBrushes.Black, new XRect(0, 0, pagina.Width, pagina.Height), XStringFormats.Center);
-        //            documento.Save(memoryStream);
-        //        }
-        //        return memoryStream.ToArray();
-        //    }
-        //}
-
-        public byte[] CriarPDF()
-        {
-            // Cria um objeto MemoryStream para armazenar os dados do PDF em memória
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // Cria um objeto SKDocument para o PDF
                 using (SKDocument documento = SKDocument.CreatePdf(stream))
                 {
-                    // Cria uma página no documento PDF
-                    using (SKCanvas canvas = documento.BeginPage(500, 500))
+                    using (SKCanvas canvas = documento.BeginPage(largura, altura))
                     {
-                        // Cria um objeto SKPaint para o texto
-                        SKPaint paint = new SKPaint
+                        string urlImagem = "https://logospng.org/download/unip/logo-unip-vermelha-1024.png";
+
+                        SKBitmap imagem;
+                        DateTime dataCertificado = dados.Data;
+
+                        using (var webClient = new WebClient())
                         {
-                            TextSize = 20,
-                            IsAntialias = true,
-                            Color = SKColors.Black,
+                            byte[] data = webClient.DownloadData(urlImagem);
+                            using (var streamBitmap = new MemoryStream(data))
+                            {
+                                imagem = SKBitmap.Decode(streamBitmap);
+                            }
+                        }
+
+                        SKPaint paintTitulo = new()
+                        {
+                            TextSize = 40f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true
                         };
 
-                        // Desenha o texto na página PDF
-                        canvas.DrawText("Texto no PDF usando SkiaSharp", 50, 100, paint);
-                    }
+                        SKPaint paintTexto = new()
+                        {
+                            TextSize = 15f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true
+                        };
 
-                    // Finaliza a página
+                        SKPaint paintNegrito = new()
+                        {
+                            TextSize = 14f,
+                            TextAlign = SKTextAlign.Center,
+                            IsAntialias = true,
+                            FakeBoldText = true 
+                        };
+
+                        string dataFormatada = $"{dataCertificado.Day} de {dataCertificado.ToString("MMMM")} de {dataCertificado.Year}";
+                        float x = largura / 2;
+                        float y = altura / 4 - paintTexto.TextSize;
+
+                        float larguraImagem = 200;
+                        float alturaImagem = 140; 
+
+                        if (imagem != null)
+                        {
+                            SKRect destino = new SKRect(20, 10, 10 + larguraImagem, 10 + alturaImagem);
+                            canvas.DrawBitmap(imagem, destino);
+                        }
+
+                        string titulo = $"Certificado";
+                        canvas.DrawText(titulo, x, y, paintTitulo);
+                        y += paintTexto.TextSize * 6f; 
+
+                        string[] linhas = {
+                            $"Certifico que {dados.AlunoNome.ToUpper()}, RA: {dados.AlunoRA.ToUpper()}, concluiu com êxito os objetivos propostos no",
+                            $"aplicativo GuieMe, com carga horária de 10 horas, realizada no dia {dataFormatada}, na Universidade",
+                            $"Paulista Campus Sorocaba."
+                        };
+
+                        foreach (string linha in linhas)
+                        {
+                            canvas.DrawText(linha, x, y, paintTexto);
+                            y += paintTexto.TextSize * 1.5f; 
+                        }
+                        y += paintTexto.TextSize * 7f;
+
+                        string texto2 = $"Sorocaba, {dataFormatada}";
+                        canvas.DrawText(texto2, x, y, paintTexto);
+                        y += paintTexto.TextSize * 7f;
+
+                        string[] linhas2 = {
+                            $"Prof. Respons",
+                            $"Coordenador do Curso de Ciencia da Computação",
+                            $"UNIP - Sorocaba"
+                        };
+
+                        foreach (string linha in linhas2)
+                        {
+                            canvas.DrawText(linha, x, y, paintNegrito);
+                            y += paintTexto.TextSize * 1f; 
+                        }
+
+                        SKPaint paintBorda = new()
+                        {
+                            Color = corBorda,
+                            StrokeWidth = 10,
+                            IsAntialias = true,
+                            Style = SKPaintStyle.Stroke
+                        };
+
+                        SKRect rect = new(0, 0, largura, altura);
+                        canvas.DrawRoundRect(rect, 20, 20, paintBorda);
+
+                        SKPaint paintBorda2 = new()
+                        {
+                            Color = corBorda2,
+                            StrokeWidth = 5,
+                            IsAntialias = true,
+                            Style = SKPaintStyle.Stroke
+                        };
+
+                        rect.Inflate(-10, -10);
+                        canvas.DrawRoundRect(rect, 20, 20, paintBorda2);
+                    }
                     documento.EndPage();
                 }
-
-                // Obtém o array de bytes do MemoryStream
                 byte[] pdfBytes = stream.ToArray();
                 return pdfBytes;
             }
         }
 
-        //public void OpenPdf()
-        //{
-        //    string fileName = "temp.pdf";
-        //    var pdfByte = CriarPdf();
-        //    try
-        //    {
-        //        DependencyService.Get<IPdfViewer>().OpenPdf(pdfByte, fileName);
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        Constants.rotaPdf = ex.Message;
-        //    }
-        //}
-
-        public void AbrirPDF()
+        public void GerarAbrirCertificadoPDF(CertificadoDados certificadoDados)
         {
             try
             {
-                string fileName = "temp.pdf";
-                var pdfByte = CriarPDF();
-                string caminhoArquivo = System.IO.Path.Combine(FileSystem.CacheDirectory, fileName);
+                string fileName = "GuieMeCertificado.pdf";
+                var pdfByte = CriarPDF(certificadoDados);
+                string caminhoArquivo = Path.Combine(FileSystem.CacheDirectory, fileName);
 
                 File.WriteAllBytes(caminhoArquivo, pdfByte);
                 Launcher.OpenAsync(new OpenFileRequest

@@ -1,4 +1,10 @@
-﻿<div>
+﻿@*<RadzenLayout style="position: relative;grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenLabel Text="Menu" />
+        </RadzenStack>
+    </RadzenHeader>
+
     <RadzenProfileMenu>
         <ChildContent>
             <RadzenProfileMenuItem Text="Login" Path="login" Icon="account_circle"></RadzenProfileMenuItem>
@@ -6,4 +12,32 @@
             <RadzenProfileMenuItem Text="Objetivos" Path="objetivos" Icon="check_circle"></RadzenProfileMenuItem>
         </ChildContent>
     </RadzenProfileMenu>
-</div>
+</RadzenLayout>
+*@
+
+
+<RadzenHeader style="font-size: 18px; color: #FFF200; font-weight: bold; background-color:#192a63">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" style="background-color: #192a63; color: white" />
+        <RadzenLabel Text="GuieMe" />
+    </RadzenStack>
+</RadzenHeader>
+<RadzenSidebar Responsive="false" @bind-Expanded="@sidebarExpanded" style="position: absolute; z-index: 3; background-color: #263A7F">
+    <RadzenStack AlignItems="AlignItems.End" Class="rz-p-2">
+        <RadzenButton Icon="west" Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@(() => sidebarExpanded = false)" Style="color: white"/>
+    </RadzenStack>
+    <RadzenPanelMenu Style="background-color: #263A7F;">
+        <RadzenPanelMenuItem Text="Informações pessoais" Path="login" Icon="account_circle" />
+        <RadzenPanelMenuItem Text="Mapa" Path="" Icon="explore" />
+        <RadzenPanelMenuItem Text="Objetivos" Path="objetivos" Icon="check_circle" />
+    </RadzenPanelMenu>
+</RadzenSidebar>
+
+@if (sidebarExpanded)
+{
+    <div @onclick="@(() => sidebarExpanded = false)" class="rz-dialog-mask" style="position: absolute; z-index: 2"></div>
+}
+
+@code {
+    bool sidebarExpanded = false;
+}
