@@ -5,8 +5,8 @@
 
 .header {
     padding: 4vw 2vw 4vw 2vw;
-    width: 100vw;
-    height: 100vw;
+    width: 100%;
+    height: 100%;
     z-index: 6;
     background-color: #263A7F;
 }

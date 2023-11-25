@@ -1,8 +1,12 @@
-﻿@page "/"
+﻿@page "/das"
+
+@using GuieMe.Domain.Enums;
+@using GuieMe.Domain.Helpers;
 @using GuieMe.Views.Components;
 @using GuieMe.Domain.Interfaces;
 
 @inject ILocalService LocalService
+@inject IObjetivoService _objetivoService
 @inject DialogService DialogService
 
 <div class="header">
@@ -11,6 +15,7 @@
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Local atual</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de partida"
                         Change=@(id_Local => SelectLocalPartida(id_Local)) Style="width: 95%; max-width: 400px;">
@@ -18,6 +23,7 @@
     </div>
 
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-5">
+        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" style="color: #FFF200;">Destino</RadzenText>
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalDestido AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione um local de destino"
                         Change=@(id_Local => SelectLocalDestino(id_Local)) Style="width: 95%; max-width: 400px;">
@@ -28,88 +34,62 @@
         <RadzenButton Click=@(args => OnClickCheckpoint()) Text="Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
     </div>
     <div class="rz-p-xl-12 rz-text-align-center">
-        <RadzenButton Click=@(args => OnClickVoltarCheckpoint()) Text="Voltar Checkpoint" Icon="explore" class="rz-border-radius-10 rz-shadow-10" ButtonStyle="ButtonStyle.Warning" Style="background-color: #FFF200; color: #263A7F;" />
-    </div>
-</div>
-<div class="mapa-container">
-    <svg>
-        <polyline points="@_posicoesRota" class="rota" />
-    </svg>
+        <RadzenButton Click=@(async args => await OnClickVoltarCheckpoint())
+                      Text="Voltar Checkpoint"
+                      Icon="explore"
+                      class="rz-border-radius-10 rz-shadow-10"
+                      ButtonStyle="ButtonStyle.Warning"
+                      Style="background-color: #FFF200; color: #263A7F;" />
 
-    <div class="mapa">
-        @foreach (var longitude in Enumerable.Range(0, qtdLinhas))
-        {
-            @foreach (var latitude in Enumerable.Range(0, qtdColunas))
-            {
-                var posicao = $"{latitude}, {longitude}"; //momentaneo
-                var tipo = "";
-
-                @foreach (var local in locais)
-                {
-                    if (local.LatitudeEntrada == latitude && local.LongitudeEntrada == longitude)
-                    {
-                        tipo = "entrada";
-                        <div class="loc_entrada" data-text="@local.Nome" style="left: @(latitude * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
-                            top: @(longitude * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
-                    }
-                    else
-                    {
-                        if ((latitude == local.LatitudeMin || latitude == local.LatitudeMax) && (longitude >= local.LongitudeMin && longitude <= local.LongitudeMax) ||
-                            (latitude >= local.LatitudeMin && latitude <= local.LatitudeMax) && (longitude == local.LongitudeMin || longitude == local.LongitudeMax))
-                        {
-                            tipo = "parede";
-                            paredes.Add(new Tuple<int, int>(latitude, longitude));
-                        }
-                    }
-                }
-                <div class="posicao @tipo"> @posicao </div>
-            }
-        }
-        <div class="pontoAtualUsuario" style="left: @(usuarios.LatitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
-                                        top: @(usuarios.LongitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
+        <RadzenButton Click=@(args => OnClickInfoCheckpoint())
+                      Icon="help_outline"
+                      ButtonStyle="ButtonStyle.Primary"
+                      class="rz-border-radius-10 rz-shadow-10"
+                      Style="background-color: #FFF200; color: #263A7F;" />
     </div>
 </div>
 
-<style>
-    .mapa {
-        display: grid;
-        grid-template-columns: repeat(@qtdColunas, @(tamanhoPosicaoPX)px);
-        grid-template-rows: repeat(@qtdLinhas, @(tamanhoPosicaoPX)px);
-        position: absolute;
-        transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);
-        margin: 10vh 10vw;
-        padding-right: 45vw;
-        z-index: 1;
-    }
-
-    svg {
-        width: @(tamanhoPosicaoPX * qtdColunas)px;
-        height: @(tamanhoPosicaoPX * qtdLinhas)px;
-        position: absolute;
-        transform: translate(@(usuarios.LatitudeAtual * -tamanhoPosicaoPX + larguraTela / 2)px, @(usuarios.LongitudeAtual * -tamanhoPosicaoPX + alturaTela / 2)px);
-        margin: 10vh 10vw;
-        z-index: 2;
-    }
-</style>
+@if (locais != null && locais.Any())
+{
+    <RadzenTabs Change=@OnChangeAndar @bind-SelectedIndex=@indexAndarAtivo TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
+        <Tabs>
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="Térreo">
+                <Mapa_component @ref="mapaTerreo" locais="@getLocaisAndar(1)" _posicoesRota="@_posicoesRota" latitudeUsuario="@usuarios.LatitudeAtual" longitudeUsuario="@usuarios.LongitudeAtual"></Mapa_component>
+            </RadzenTabsItem>
+            <RadzenTabsItem Disabled="@dabilitarTab" Text="Primeiro Andar">
+                <Mapa_component @ref="mapaPrimeiroAndar" locais="@getLocaisAndar(2)" _posicoesRota="@_posicoesRota" latitudeUsuario="@usuarios.LatitudeAtual" longitudeUsuario="@usuarios.LongitudeAtual"></Mapa_component>
+            </RadzenTabsItem>
+            @*<RadzenTabsItem Text="Segundo Andar">
+        <Mapa_component @ref="mapaSegundoAndar" locais="@getLocaisAndar(3)" _posicoesRota="@_posicoesRota" latitudeUsuario="@usuarios.LatitudeAtual" longitudeUsuario="@usuarios.LongitudeAtual"></Mapa_component>
+        </RadzenTabsItem>*@
+        </Tabs>
+    </RadzenTabs>
+}
 
 @code {
-    static int qtdColunas { get; set; } = 30;
-    static int qtdLinhas { get; set; } = 15;
+    private Mapa_component mapaTerreo;
+    private Mapa_component mapaPrimeiroAndar;
+    private Mapa_component mapaSegundoAndar;
 
-    static int tamanhoPosicaoPX { get; set; } = 30; //50
+    private int indexAndarAtivo = 0;
 
-    static int larguraTela { get; set; } = 400; //deixar dinamico - pega o tamanho da tela
-    static int alturaTela { get; set; } = 300; //deixar dinamico
+    static int tamanhoPosicaoPX { get; set; } = 30;
 
     int valorSelecionadoLocalPartida;
     int valorSelecionadoLocalDestido;
 
-
     List<Local> locaisAcessiveis;
     List<Local> locais;
-    List<Tuple<int, int>> paredes;
+    List<Andar> andares;
+
+    List<Tuple<int, int>> paredes = new();
+    List<Tuple<int, int>> escadas = new();
 
     public string _posicoesRota { get; set; }
+
+    public int latitudeEscada { get; set; }
+    public int longitudeEscada { get; set; }
+
 
     public int latitudePartida { get; set; }
     public int longitudePartida { get; set; }
@@ -117,75 +97,164 @@
     public int latitudeDestino { get; set; }
     public int longitudeDestino { get; set; }
 
-    public Usuario usuarios = new Usuario();
-    public Local localSelecionadoDestino = new Local();
-    public Local localSelecionadoPartida = new Local();
+    public Usuario usuarios = new();
+    public Local localSelecionadoDestino = new();
+    public Local localSelecionadoPartida = new();
 
-    public List<(int latitude, int longitude)> posicoes { get; set; } = new List<(int, int)>();
-    public List<(int latitude, int longitude)> posicoesAnterior { get; set; } = new List<(int, int)>();
+    public Andar andarPartida = new();
+    public Andar andarDestino = new();
+
+    public List<(int latitude, int longitude)> posicoes { get; set; } = new();
+    public List<Local> locaisAnteriores { get; set; } = new();
+
+    public Local escadaCheckpoint { get; set; }
+
+    public bool dabilitarTab { get => !string.IsNullOrEmpty(_posicoesRota); }
 
     protected override async Task OnInitializedAsync()
     {
+        _objetivoService.ConcluirObjetivo(Constants.LocalAtualId);
         locais = LocalService.Locais();
+        andares = LocalService.Andares();
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
-        paredes = LocalService.Paredes();
 
-        if (posicoes.Count > 0)
-        {
-            await VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual);
-        }
+        locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
 
-        //StateHasChanged(); notifica o componente para atualizar a interface com as alterações mais recentes.
+        //if (posicoes.Count > 0)
+        //{
+        //    await VerificaSeChegouAoDestino(usuarios.LatitudeAtual, usuarios.LongitudeAtual);
+        //}
     }
 
-    public void OnClickCheckpoint()
+    List<Local> getLocaisAndar(int piso)
+    {
+        var locaisAndar = locais.Where(x => x.Pisoo == piso).ToList();
+        return locaisAndar;
+    }
+
+    public void OnClickInfoCheckpoint()
+    {
+        var mensagem = $@"
+    1- O botão de checkpoint leava para o próximo ponto de referencia;<br><br>
+    2- O botão de voltar checkpoint volta para o ponto de referencia anterior.";
+        DialogService.Alert(mensagem, "Checkpoint Duvidas", new AlertOptions() { OkButtonText = "Ok" }); //TODO: Arrumar texto
+    }
+
+    void OnChangeAndar(int index)
+    {
+        indexAndarAtivo = index;
+        ZerarRota();
+
+        //foreach (var local in locais) //TODO: analisar
+        //{
+        //    var pisoDoAndarAtivo = andares.Find(andar => andar.IndexAndar == (int)indexAndarAtivo);
+
+        //    if (local.Escada == true)
+        //    {
+        //        local.Pisoo = pisoDoAndarAtivo.Pisoo;
+        //    }
+        //StateHasChanged(); //notifica o componente para atualizar a interface com as alterações mais recentes.
+        //}
+    }
+
+    public async Task OnClickCheckpoint()
     {
         foreach (var posicao in posicoes)
         {
-            foreach(var local in locaisAcessiveis)
+            foreach (var local in locaisAcessiveis)
             {
-                bool latitudeCheckpoint = posicao.latitude == local.LatitudeEntrada
-                    || posicao.latitude + 1 == local.LatitudeEntrada
-                    || posicao.latitude - 1 == local.LatitudeEntrada;
+                var piso = andares.Find(andar => andar.Pisoo == local.Pisoo);
 
-                bool longitudeCheckpoint = posicao.longitude == local.LongitudeEntrada
-                    || posicao.longitude + 1 == local.LongitudeEntrada
-                    || posicao.longitude - 1 == local.LongitudeEntrada;
-
-                if (latitudeCheckpoint && longitudeCheckpoint)
+                if (piso.IndexAndar == indexAndarAtivo) //TODO: checkpoint com raio muito pequeno. exemplo papelaria para laboratorio
                 {
-                    if (local.Id != valorSelecionadoLocalPartida)
+                    bool latitudeCheckpoint = posicao.latitude == local.LatitudeEntrada
+                        || posicao.latitude + 1 == local.LatitudeEntrada
+                        || posicao.latitude - 1 == local.LatitudeEntrada;
+
+                    bool longitudeCheckpoint = posicao.longitude == local.LongitudeEntrada
+                        || posicao.longitude + 1 == local.LongitudeEntrada
+                        || posicao.longitude - 1 == local.LongitudeEntrada;
+
+                    if (latitudeCheckpoint && longitudeCheckpoint)
                     {
-                        posicoesAnterior.Add((usuarios.LongitudeAtual, usuarios.LatitudeAtual));
-                        usuarios.LongitudeAtual = local.LongitudeEntrada;
-                        usuarios.LatitudeAtual = local.LatitudeEntrada;
-                        valorSelecionadoLocalPartida = local.Id;
-                        SelectLocalPartida(local.Id);
-                        return;
+                        if (local.Id != valorSelecionadoLocalPartida)
+                        {
+                            locaisAnteriores.Add(local);
+
+                            usuarios.LatitudeAtual = local.LatitudeEntrada;
+                            usuarios.LongitudeAtual = local.LongitudeEntrada;
+                            valorSelecionadoLocalPartida = local.Id;
+
+                            if (local.Escada == true && localSelecionadoDestino.Pisoo != usuarios.PisoAtual)
+                            {
+                                escadaCheckpoint = local;
+                                if (localSelecionadoDestino.Pisoo > usuarios.PisoAtual)
+                                {
+                                    await MostrarMensagemEscada("Subir");
+                                }
+                                else
+                                {
+                                    await MostrarMensagemEscada("Descer");
+                                }
+                            }
+                            else
+                            {
+                                SelectLocalPartida(local.Id);
+                            }
+                            return;
+                        }
                     }
                 }
             }
         }
     }
-    public void OnClickVoltarCheckpoint()
+
+    public async Task OnClickVoltarCheckpoint()
     {
-        if (posicoesAnterior.Count > 0)
-        {            
-            var posicaoAnterior = posicoesAnterior.FindLast(o => o.latitude != null);
-            var localAnterior = locaisAcessiveis.Find(o => o.LatitudeEntrada == posicaoAnterior.latitude
-                    && o.LongitudeEntrada == posicaoAnterior.longitude);
-            if (localAnterior != null)
-            {
-                posicoesAnterior.Remove(posicaoAnterior);
-                usuarios.LongitudeAtual = posicaoAnterior.longitude;
-                usuarios.LatitudeAtual = posicaoAnterior.latitude;
-                valorSelecionadoLocalPartida = localAnterior.Id;
-                SelectLocalPartida(localAnterior.Id);
-            }
+        if (!locaisAnteriores.Any()) return;
+
+        var localAnterior = locaisAnteriores.Last();
+        var escadaOutroPiso = false;
+
+        if (usuarios.LongitudeAtual == localAnterior.LongitudeEntrada
+            && usuarios.LatitudeAtual == localAnterior.LatitudeEntrada
+            && usuarios.PisoAtual == localAnterior.Pisoo)
+        {
+            locaisAnteriores.Remove(localAnterior);
+            localAnterior = locaisAnteriores.Last();
         }
+
+        if (localAnterior.Escada == true && localAnterior.Pisoo != usuarios.PisoAtual)
+        {
+            escadaOutroPiso = true;
+            localAnterior = locais.FindLast(o => o.LatitudeEntrada == localAnterior.LatitudeEntrada 
+                && o.LongitudeEntrada == localAnterior.LongitudeEntrada 
+                && o.Pisoo == usuarios.PisoAtual);            
+        }
+
+        if (localAnterior == null) return;
+
+        locaisAnteriores.Remove(locaisAnteriores.Last());
+        selecionarLocalCheckpoint(localAnterior);
+
+        if (localAnterior.Escada == false || (localAnterior.Escada == true && localAnterior.Pisoo == usuarios.PisoAtual && escadaOutroPiso == false))
+        {
+            SelectLocalPartida(localAnterior.Id);
+            return;
+        }
+
+        var mensagemEscada = locaisAnteriores.Last().Pisoo > localAnterior.Pisoo ? "Subir" : "Descer";
+        var result = await DialogService.Confirm("Obs.: Negar está opção ira zerar a rota.", $"{mensagemEscada} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
+
+        if (result.Value == false) return;
+
+        localAnterior = locaisAnteriores.Last();
+
+        selecionarLocalCheckpoint(localAnterior);
+        SelectLocalPartida(localAnterior.Id);
     }
 
-    public void SelectLocalPartida(object id_Local)
+    public void SelectLocalPartida(object id_Local, bool trocarAndar = true, bool mostrarMensagemEscada = true)
     {
         if (id_Local != null)
         {
@@ -198,16 +267,26 @@
 
                 usuarios.LatitudeAtual = localSelecionadoPartida.LatitudeEntrada;
                 usuarios.LongitudeAtual = localSelecionadoPartida.LongitudeEntrada;
+                usuarios.PisoAtual = localSelecionadoPartida.Pisoo;
+            }
+
+            if (trocarAndar)
+            {
+                andarPartida = andares.Find(andar => andar.Pisoo == localSelecionadoPartida.Pisoo);
+                OnChangeAndar(andarPartida.IndexAndar);
             }
 
             if (latitudeDestino != 0 && longitudeDestino != 0)
             {
-                VerificarCaminhoValido(latitudeDestino, longitudeDestino);
+                if (andarPartida.IndexAndar == indexAndarAtivo)
+                {
+                    VerificarCaminhoValido(latitudeDestino, longitudeDestino, mostrarMensagemEscada);
+                }
             }
         }
     }
 
-    public void SelectLocalDestino(object id_Local)
+    public void SelectLocalDestino(object id_Local, bool selecionadoInput = false)
     {
         if (id_Local != null)
         {
@@ -222,18 +301,17 @@
             {
                 latitudeDestino = 0;
                 longitudeDestino = 0;
-
                 ZerarRota();
             }
         }
 
+        andarDestino = andares.Find(andar => andar.Pisoo == localSelecionadoDestino.Pisoo);
+
         if (latitudeDestino != 0 && longitudeDestino != 0)
-        {
-            VerificarCaminhoValido(latitudeDestino, longitudeDestino);
-        }
+            VerificarCaminhoValido(latitudeDestino, longitudeDestino, false);
     }
 
-    public void VerificarCaminhoValido(int latitudeDestino, int longitudeDestino)
+    public async void VerificarCaminhoValido(int latitudeDestino, int longitudeDestino, bool mostrarMensagemEscada)
     {
         ZerarRota();
 
@@ -241,15 +319,15 @@
 
         if (localSelecionadoPartida != null)
         {
-            if (localSelecionadoPartida.Id != 0)
+            if (localSelecionadoPartida.Id == 0 || usuarios.LatitudeAtual == latitudeEscada && usuarios.LongitudeAtual == longitudeEscada) //TODO: analisar
             {
-                posicaoInicialUsuario = (latitudePartida, longitudePartida);
-                usuarios.LatitudeAtual = latitudePartida;
-                usuarios.LongitudeAtual = longitudePartida;            
+                posicaoInicialUsuario = (usuarios.LatitudeAtual, usuarios.LongitudeAtual);
             }
             else
             {
-                posicaoInicialUsuario = (usuarios.LatitudeAtual, usuarios.LongitudeAtual);
+                posicaoInicialUsuario = (latitudePartida, longitudePartida);
+                usuarios.LatitudeAtual = latitudePartida;
+                usuarios.LongitudeAtual = longitudePartida;
             }
         }
         else
@@ -265,29 +343,34 @@
 
         posioesAnalisar.Enqueue(posicaoInicialUsuario); //Enqueue: adiciona um elemento ao final da fila(Queue)
 
-        while (posioesAnalisar.Count > 0)
+        if (andarDestino.IndexAndar != indexAndarAtivo && !(VerificarEscada(usuarios.LatitudeAtual, usuarios.LongitudeAtual)))
         {
-            var primeiraPosicaoFila = posioesAnalisar.Dequeue(); //Dequeue: remove e retorna o primeiro elemento(que entrou) da fila(Queue)
-
-            if (primeiraPosicaoFila == destino)
+            while (posioesAnalisar.Count > 0)
             {
-                var rota = new List<(int latitude, int longitude)>();
+                var primeiraPosicaoFila = posioesAnalisar.Dequeue(); //Dequeue: remove e retorna o primeiro elemento(que entrou) da fila(Queue)
 
-                while (primeiraPosicaoFila != posicaoInicialUsuario)
+                if (VerificarEscada(primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude))
                 {
-                    rota.Add(primeiraPosicaoFila);
-                    primeiraPosicaoFila = posicoesEvizinhosVerificados[primeiraPosicaoFila]; //atualiza primeiraPosicao == indice da primeiraPosicao
-                }
-                rota.Reverse();
+                    latitudeEscada = primeiraPosicaoFila.latitude;
+                    longitudeEscada = primeiraPosicaoFila.longitude;
 
-                foreach (var posicao in rota)
-                {
-                    posicoes.Add(posicao);
-                }
-                break;
-            }
+                    var rota = new List<(int latitude, int longitude)>();
 
-            var vizinhos = new List<(int latitude, int longitude)>
+                    while (primeiraPosicaoFila != posicaoInicialUsuario)
+                    {
+                        rota.Add(primeiraPosicaoFila);
+                        primeiraPosicaoFila = posicoesEvizinhosVerificados[primeiraPosicaoFila]; //atualiza primeiraPosicao == indice da primeiraPosicao
+                    }
+                    rota.Reverse();
+
+                    foreach (var posicao in rota)
+                    {
+                        posicoes.Add(posicao);
+                    }
+                    break;
+                }
+
+                var vizinhos = new List<(int latitude, int longitude)>
             {
                 (primeiraPosicaoFila.latitude + 1, primeiraPosicaoFila.longitude),
                 (primeiraPosicaoFila.latitude - 1, primeiraPosicaoFila.longitude),
@@ -295,13 +378,68 @@
                 (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude + 1),
             };
 
-            foreach (var vizinho in vizinhos)
-            {
-                if (!VerificarParede(vizinho.latitude, vizinho.longitude) && !vizinhosValidos.Contains(vizinho))
+                foreach (var vizinho in vizinhos)
                 {
-                    vizinhosValidos.Add(vizinho);
-                    posioesAnalisar.Enqueue(vizinho);
-                    posicoesEvizinhosVerificados[vizinho] = primeiraPosicaoFila; //chave-valor == vizinho-posicaoAnalisada
+                    if (!VerificarParede(vizinho.latitude, vizinho.longitude) && !vizinhosValidos.Contains(vizinho))
+                    {
+                        vizinhosValidos.Add(vizinho);
+                        posioesAnalisar.Enqueue(vizinho);
+                        posicoesEvizinhosVerificados[vizinho] = primeiraPosicaoFila; //chave-valor == vizinho-posicaoAnalisada
+                    }
+                }
+            }
+        }
+        else if (VerificarEscada(usuarios.LatitudeAtual, usuarios.LongitudeAtual) && andarDestino.IndexAndar != indexAndarAtivo)
+        {
+            if (localSelecionadoDestino.Pisoo > usuarios.PisoAtual && mostrarMensagemEscada)
+            {
+                await MostrarMensagemEscada("Subir");
+            }
+            else if (mostrarMensagemEscada)
+            {
+                await MostrarMensagemEscada("Descer");
+            }
+        }
+        else
+        {
+            while (posioesAnalisar.Count > 0)
+            {
+                var primeiraPosicaoFila = posioesAnalisar.Dequeue(); //Dequeue: remove e retorna o primeiro elemento(que entrou) da fila(Queue)
+
+                if (primeiraPosicaoFila == destino)
+                {
+                    var rota = new List<(int latitude, int longitude)>();
+
+                    while (primeiraPosicaoFila != posicaoInicialUsuario)
+                    {
+                        rota.Add(primeiraPosicaoFila);
+                        primeiraPosicaoFila = posicoesEvizinhosVerificados[primeiraPosicaoFila]; //atualiza primeiraPosicao == indice da primeiraPosicao
+                    }
+                    rota.Reverse();
+
+                    foreach (var posicao in rota)
+                    {
+                        posicoes.Add(posicao);
+                    }
+                    break;
+                }
+
+                var vizinhos = new List<(int latitude, int longitude)>
+                {
+                    (primeiraPosicaoFila.latitude + 1, primeiraPosicaoFila.longitude),
+                    (primeiraPosicaoFila.latitude - 1, primeiraPosicaoFila.longitude),
+                    (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude - 1),
+                    (primeiraPosicaoFila.latitude, primeiraPosicaoFila.longitude + 1),
+                };
+
+                foreach (var vizinho in vizinhos)
+                {
+                    if (!VerificarParede(vizinho.latitude, vizinho.longitude) && !vizinhosValidos.Contains(vizinho))
+                    {
+                        vizinhosValidos.Add(vizinho);
+                        posioesAnalisar.Enqueue(vizinho);
+                        posicoesEvizinhosVerificados[vizinho] = primeiraPosicaoFila; //chave-valor == vizinho-posicaoAnalisada
+                    }
                 }
             }
         }
@@ -311,7 +449,35 @@
 
     public bool VerificarParede(int latitude, int longitude)
     {
-        return paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude); //Any: vê se pelo menos um é igual
+        if (indexAndarAtivo == 0)
+        {
+            return mapaTerreo.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+        else if (indexAndarAtivo == 1)
+        {
+            return mapaPrimeiroAndar.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+        else
+        {
+            return mapaSegundoAndar.paredes.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+    }
+
+    public bool VerificarEscada(int latitude, int longitude)
+    {
+        if (indexAndarAtivo == 0)
+        {
+            return mapaTerreo.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+        else if (indexAndarAtivo == 1)
+        {
+            return mapaPrimeiroAndar.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+        else
+        {
+            return mapaSegundoAndar.escadas.Any(p => p.Item1 == latitude && p.Item2 == longitude);
+        }
+
     }
 
     public void GerarRota()
@@ -328,30 +494,96 @@
         _posicoesRota = string.Join(" ", posicoesRota);
     }
 
-    public async Task VerificaSeChegouAoDestino(int latitudeAtual, int longitudeAtual)
-    {
-        VerificarCaminhoValido(latitudeDestino, longitudeDestino);
+    //public async Task VerificaSeChegouAoDestino(int latitudeAtual, int longitudeAtual)
+    //{
+    //    VerificarCaminhoValido(latitudeDestino, longitudeDestino);
 
-        if (latitudeAtual == latitudeDestino && longitudeAtual == longitudeDestino)
+    //    if (latitudeAtual == latitudeDestino && longitudeAtual == longitudeDestino)
+    //    {
+    //        await MostrarModal();
+    //    }
+    //}
+
+    private async Task MostrarMensagemEscada(string direcao)
+    {
+        var result = await DialogService.Confirm("Obs.: Negar está opção ira zerar a rota.", $"{direcao} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
+
+        if (result == true)
         {
-            await MostrarModal();
-        }
-    }
+            var proximoAndar = 0;
 
-    protected async Task MostrarModal()
-    {
-        await DialogService.OpenSideAsync<Views.Components.ModalChegada_component>("", options: new SideDialogOptions
+            if (direcao == "Subir")
             {
-                CloseDialogOnOverlayClick = true,
-                Position = DialogPosition.Bottom,
-                ShowMask = true,
-                CssClass = "modal-css"
-            });
+                proximoAndar = localSelecionadoPartida.Pisoo + 1;
+                var indexProximoAndar = andares.Find(andar => andar.Pisoo == proximoAndar);
+
+                OnChangeAndar(indexProximoAndar.IndexAndar);
+
+                if (escadaCheckpoint != null)
+                {
+                    var local = locais.First(x => x.Pisoo == proximoAndar
+                        && x.LongitudeEntrada == escadaCheckpoint.LongitudeEntrada
+                        && x.LatitudeEntrada == escadaCheckpoint.LatitudeEntrada);
+
+                    //SelectLocalPartida(local.Id, false);
+                    valorSelecionadoLocalPartida = local.Id;
+                    SelectLocalPartida(local.Id, false, false);
+                    escadaCheckpoint = null;
+                }
+                //foreach (var local in locais)
+                //{
+                //    if (local.Escada == true)
+                //    {
+                //        local.Pisoo += 1;
+                //    }
+                //}
+            }
+            else
+            {
+                proximoAndar = localSelecionadoPartida.Pisoo - 1;
+                var indexProximoAndar = andares.Find(andar => andar.Pisoo == proximoAndar);
+
+                OnChangeAndar(indexProximoAndar.IndexAndar);
+
+                if (escadaCheckpoint != null)
+                {
+                    var local = locais.First(x => x.Pisoo == proximoAndar
+                        && x.LongitudeEntrada == escadaCheckpoint.LongitudeEntrada
+                        && x.LatitudeEntrada == escadaCheckpoint.LatitudeEntrada);
+
+                    //SelectLocalPartida(local.Id, false);
+                    valorSelecionadoLocalPartida = local.Id;
+                    SelectLocalPartida(local.Id, false, false);
+                    escadaCheckpoint = null;
+                }
+
+                //foreach (var local in locais)
+                //{
+                //    if (local.Escada == true)
+                //    {
+                //        local.Pisoo -= 1;
+                //    }
+                //}
+            }
+
+            VerificarCaminhoValido(latitudeDestino, longitudeDestino, false);
+        }
+        else
+        {
+            ZerarRota();
+        }
     }
 
     public void ZerarRota()
     {
         posicoes.Clear();
-        _posicoesRota = null;
+        this._posicoesRota = null;
+    }
+
+    private void selecionarLocalCheckpoint(Local local)
+    {
+        valorSelecionadoLocalPartida = local.Id;
+        usuarios.LatitudeAtual = local.LatitudeEntrada;
+        usuarios.LongitudeAtual = local.LongitudeEntrada;
     }
 }

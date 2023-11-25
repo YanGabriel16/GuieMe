@@ -25,7 +25,7 @@
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">29.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
@@ -38,6 +38,7 @@
       <AndroidSigningStorePass>TCC@123!</AndroidSigningStorePass>
       <AndroidSigningKeyAlias>key0</AndroidSigningKeyAlias>
       <AndroidSigningKeyPass>TCC@123!</AndroidSigningKeyPass>
+      <Debugger>Xamarin</Debugger>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
@@ -45,6 +46,7 @@
       <AndroidSigningStorePass>TCC@123!</AndroidSigningStorePass>
       <AndroidSigningKeyAlias>key0</AndroidSigningKeyAlias>
       <AndroidSigningKeyPass>TCC@123!</AndroidSigningKeyPass>
+      <Debugger>Xamarin</Debugger>
     </PropertyGroup>
 
     <ItemGroup>
@@ -66,10 +68,18 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Resources\Fonts\Verdana-Bold.ttf" />
+      <None Remove="Resources\Fonts\Verdana-BoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Verdana-Italic.ttf" />
+      <None Remove="Resources\Fonts\Verdana-Regular.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Aspose.HTML" Version="23.7.0" />
-        <PackageReference Include="BlazorBarcodeScanner.ZXing.JS" Version="1.0.3" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-        <PackageReference Include="Radzen.Blazor" Version="4.10.1" />
+        <PackageReference Include="PdfSharpCore" Version="1.3.62" />
+        <PackageReference Include="Radzen.Blazor" Version="4.17.1" />
+        <PackageReference Include="SkiaSharp" Version="2.88.6" />
     </ItemGroup>
 
 </Project>

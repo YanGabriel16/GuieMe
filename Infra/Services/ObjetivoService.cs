@@ -4,6 +4,7 @@ using Aspose.Html.Saving;
 using GuieMe.Domain.Helpers;
 using GuieMe.Domain.Interfaces;
 using GuieMe.Domain.Models;
+using System.Net.Http;
 
 namespace GuieMe.Infra.Services
 {
@@ -19,17 +20,18 @@ namespace GuieMe.Infra.Services
             _storageService = storageService;
             _localService = localService;
         }
-        public async void ConcluirObjetivo(int idObjetivo)
+        public async void ConcluirObjetivo(int localId)
         {
             Usuario usuario = await _usuarioService.GetUsuario();
 
             List<Objetivo> objetivos = GetObjetivos(usuario.Curso?.Id);
 
-            Objetivo objetivo = objetivos.FirstOrDefault(x => x.Id == idObjetivo);
+            Objetivo objetivo = objetivos.FirstOrDefault(x => x.LocalId == localId);
 
-            if (objetivo != null)
+            if (objetivo != null && !usuario.ObjetivosConcluidos.Any(x => x.Id == objetivo.Id))
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
+                usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();
                 await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
             }
         }
@@ -38,20 +40,19 @@ namespace GuieMe.Infra.Services
         {
             Usuario usuario = await _usuarioService.GetUsuario();
 
-            if (usuario.TodosObjetivosForamConcluidos.HasValue 
-                && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
+            //if (usuario.TodosObjetivosForamConcluidos.HasValue 
+               // && usuario.TodosObjetivosForamConcluidos.Value == false) return false;
 
-            int horas = usuario.ObjetivosConcluidos.Count();
-            string cursoNome = nameof(usuario.Curso);
+            int horas = usuario.ObjetivosConcluidos.Count;
             DateTime data = DateTime.Now;
 
             //TODO: Criar modelo de certificacao
-            string htmlCertificado = $@"
-Certificamos que o aluno {usuario.Nome} {usuario.Sobrenome}, do curso {cursoNome}, do RA {usuario.RA}
+            string conteudoHtml = $@"
+Certificamos que o aluno {usuario.Nome} {usuario.Sobrenome}, do curso {usuario.Curso.Nome}, do RA {usuario.RA}
 concluiu todos os objetivos de conhecimento do campus, no dia {data.Date}. 
 com uma carga horaria de {horas}.
 ";
-            HTMLDocument certificado = new HTMLDocument(htmlCertificado);
+            HTMLDocument certificado = new(conteudoHtml);
             
             string savePath = Path.Combine(@"\storage\emulated\0\Download\certificado-guieMe.pdf");
 
@@ -67,10 +68,10 @@ com uma carga horaria de {horas}.
             var objetivos = new List<Objetivo>()
             {
                 new Objetivo(0, 0, null, "Inicie reconhecendo o predio principal"),
-                new Objetivo(1, 1, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos veteranos pode resolver alguns (se você for um veterano(a))"),
-                new Objetivo(2, 4, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos calouros pode resolver alguns (se você for um calouro(a))"),
-                new Objetivo(3, 2, null, "As vezes é necessário uma lembrancinha academica ou até materiais academicos..."),
-                new Objetivo(4, 5, null, "Nem todos os problemas podemos resolver nas secretarias, as vezes você pode achar a solução aqui"),
+                new Objetivo(1, 4, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos calouros pode resolver alguns (se você for um calouro(a))"),
+                new Objetivo(2, 1, null, "Uma boa vida academica vem da facilidade de resolver problemas, e a secretaria dos veteranos pode resolver alguns (se você for um veterano(a))"),
+                new Objetivo(3, 5, null, "Nem todos os problemas podemos resolver nas secretarias, as vezes você pode achar a solução aqui"),
+                new Objetivo(4, 2, null, "As vezes é necessário uma lembrancinha academica ou até materiais academicos..."),
             };
 
             var locais = _localService.Locais();
