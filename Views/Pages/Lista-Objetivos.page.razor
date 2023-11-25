@@ -10,77 +10,80 @@
 @inject IPdfService _pdfService;
 @inject DialogService DialogService
 
-<div class="header">
-    <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
-        <AppMenu_component></AppMenu_component>
-    </div>
+<body>
+    <div class="header">
+        <div class="rz-p-xl-12 rz-text-align-end rz-mb-2 rz-mr-2">
+            <AppMenu_component></AppMenu_component>
+        </div>
 
-    <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-        <h2 style="color: #FFF200;">Objetivos</h2>
-    </div>
-</div>
-<div>
-    @if (objetivos != null)
-    {
         <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenStack Gap="1rem" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
-                <RadzenLabel Text="@progressoObjetivosConcluidos()" style="color: black;" class="align-text-center" />
-                <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success"
-                                   Value="@quantidadeObjetivosConcluidos"
-                                   Max="@quantidadeObjetivos"
-                                   ShowValue="true" />
-            </RadzenStack>
-            @foreach (var objetivo in objetivos)
-            {
-                var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
-                PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
-                string icon() => progresso == 1 ? "check" : "more_horiz";
-                string mensagem() => progresso == 1 ? "Concluído" : "Em Andamento";
-                var objetivoHeader = "Cursos: Todos";
+            <h2 style="color: #FFF200;">Objetivos</h2>
+        </div>
+    </div>
 
-                if (objetivo.CursoId != null)
+    <div class="container">
+        @if (objetivos != null)
+        {
+            <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+                <RadzenStack Gap="1rem" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
+                    <RadzenLabel Text="@progressoObjetivosConcluidos()" style="color: black;" class="align-text-center" />
+                    <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success"
+                                       Value="@quantidadeObjetivosConcluidos"
+                                       Max="@quantidadeObjetivos"
+                                       ShowValue="true" />
+                </RadzenStack>
+                @foreach (var objetivo in objetivos)
                 {
-                    var curso = cursos.First(x => x.Id == objetivo.CursoId);
-                    if (curso != null)
-                        objetivoHeader = $"Curso: {curso.Nome}";
+                    var progresso = ObjetivoEstaConcluido(objetivo.Id) ? 1 : 0;
+                    PointStyle point() => progresso == 1 ? PointStyle.Primary : PointStyle.Base;
+                    string icon() => progresso == 1 ? "check" : "more_horiz";
+                    string mensagem() => progresso == 1 ? "Concluído" : "Em Andamento";
+                    var objetivoHeader = "Cursos: Todos";
 
+                    if (objetivo.CursoId != null)
+                    {
+                        var curso = cursos.First(x => x.Id == objetivo.CursoId);
+                        if (curso != null)
+                            objetivoHeader = $"Curso: {curso.Nome}";
+
+                    }
+
+                    <RadzenPanel AllowCollapse="false" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
+                        <RadzenText Class="rz-m-0" TextStyle="TextStyle.DisplayH6" Style="color: #1051f2;">@objetivoHeader</RadzenText>
+                        <RadzenTimeline Orientation="Orientation.Vertical" LinePosition="LinePosition.Center"
+                                        style="--rz-timeline-line-width: 36px; max-width: 600px; margin: 0 auto;">
+                            <Items>
+                                <RadzenTimelineItem PointStyle="@point()">
+                                    <PointContent><RadzenIcon Icon="@icon()" /></PointContent>
+                                    <LabelContent>
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
+                                    </LabelContent>
+                                    <ChildContent>
+                                        @mensagem()
+                                    </ChildContent>
+                                </RadzenTimelineItem>
+                            </Items>
+                        </RadzenTimeline>
+                        <RadzenText Class="rz-m-0">@objetivo.Descricao</RadzenText>
+                    </RadzenPanel>
                 }
-
-                <RadzenPanel AllowCollapse="false" Class="rz-my-10 rz-mx-auto" Style="width: 90%;">
-                    <RadzenText Class="rz-m-0" TextStyle="TextStyle.DisplayH6" Style="color: #1051f2;">@objetivoHeader</RadzenText>
-                    <RadzenTimeline Orientation="Orientation.Vertical" LinePosition="LinePosition.Center"
-                                    style="--rz-timeline-line-width: 36px; max-width: 600px; margin: 0 auto;">
-                        <Items>
-                            <RadzenTimelineItem PointStyle="@point()">
-                                <PointContent><RadzenIcon Icon="@icon()" /></PointContent>
-                                <LabelContent>
-                                    <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-m-0 rz-color-primary">@objetivo.Nome</RadzenText>
-                                </LabelContent>
-                                <ChildContent>
-                                    @mensagem()
-                                </ChildContent>
-                            </RadzenTimelineItem>
-                        </Items>
-                    </RadzenTimeline>
-                    <RadzenText Class="rz-m-0">@objetivo.Descricao</RadzenText>
-                </RadzenPanel>
-            }
-        </div>
-        <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
-            <RadzenButton Click=@(args => OnClickGerarCertificado()) 
-                Text="Gerar Certificado"
-                Icon="aspect_ratio"
-                class="rz-border-radius-10 rz-shadow-10" 
-                ButtonStyle="ButtonStyle.Warning" 
-                Style="background-color: #263A7F; color: #FFF200;" />
-            <RadzenButton Click=@(args => OnClickInfoObjetivos()) 
-                Icon="help_outline" 
-                ButtonStyle="ButtonStyle.Primary"
-                class="rz-border-radius-10 rz-shadow-10"
-                Style="background-color: #263A7F; color: #FFF200;" />
-        </div>
-    }
-</div>
+            </div>
+            <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
+                <RadzenButton Click=@(args => OnClickGerarCertificado())
+                              Text="Gerar Certificado"
+                              Icon="aspect_ratio"
+                              class="rz-border-radius-10 rz-shadow-10"
+                              ButtonStyle="ButtonStyle.Warning"
+                              Style="background-color: #263A7F; color: #FFF200;" />
+                <RadzenButton Click=@(args => OnClickInfoObjetivos())
+                              Icon="help_outline"
+                              ButtonStyle="ButtonStyle.Primary"
+                              class="rz-border-radius-10 rz-shadow-10"
+                              Style="background-color: #263A7F; color: #FFF200;" />
+            </div>
+        }
+    </div>
+</body>
 
 @code {
     List<Objetivo> objetivos;
@@ -100,7 +103,7 @@
         todosObjetivosConcluidos = quantidadeObjetivos == quantidadeObjetivosConcluidos;
     }
 
-    string iconTodosObjetivosConcluidos() 
+    string iconTodosObjetivosConcluidos()
         => todosObjetivosConcluidos ? "assignment_turned_in" : "assignment_late";
 
     string progressoObjetivosConcluidos()
@@ -113,7 +116,7 @@
 
     public async void OnClickGerarCertificado()
     {
-        if(usuarioLogado == null || !string.IsNullOrEmpty(usuarioLogado.RA) || usuarioLogado.TodosObjetivosForamConcluidos == false || false) //TODO: retirar false, momentaneo para teste
+        if (usuarioLogado == null || string.IsNullOrEmpty(usuarioLogado.RA) || usuarioLogado.TodosObjetivosForamConcluidos == false)
         {
             var mensagem = $@"
     Para gerar o certificado é necessário que:<br>
@@ -137,6 +140,6 @@
     4- Os objetivos são separados por cursos; cada curso tem seus objetivos, que são locais específicos da universidade a serem conhecidos. Portanto, é necessário informar seus dados na tela de login local acessada pelo menu;<br><br>
     5- Alguns dados são necessários para gerar o certificado, como RA, nome e curso que o usuário está realizando na universidade;<br><br>
     6- Para validar o certificado, basta levá-lo ao coordenador do seu curso.";
-        DialogService.Alert(mensagem, "Objetivos Duvidas", new AlertOptions() { OkButtonText = "Ok" });
+        DialogService.Alert(mensagem, "Dúvidas sobre os Objetivos", new AlertOptions() { OkButtonText = "Ok" });
     }
 }

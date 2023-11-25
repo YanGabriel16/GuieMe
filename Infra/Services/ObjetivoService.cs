@@ -30,7 +30,7 @@ namespace GuieMe.Infra.Services
             {
                 usuario.ObjetivosConcluidos.Add(objetivo);
                 usuario.ObjetivosConcluidos = usuario.ObjetivosConcluidos.OrderBy(x => x.Id).ToList();
-                await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+                await _storageService.SetValueAsync(VariaveisGlobais.UsuarioKey, usuario);
             }
 
             if (usuario.ObjetivosConcluidos.Count >= objetivos.Count)
@@ -65,8 +65,8 @@ namespace GuieMe.Infra.Services
         {
             var objetivos = new List<Objetivo>()
             {
-                new Objetivo(1, 28, null, "Uma boa vida acadêmica decorre da habilidade em resolver problemas, e a secretaria dos calouros pode auxiliar em alguns (se você for um calouro(a))."),
-                new Objetivo(2, 27, null, "Uma boa vida acadêmica resulta da habilidade em resolver problemas, e a secretaria dos veteranos pode ajudar com alguns (se você for um veterano(a))."),
+                //new Objetivo(1, 28, null, "Uma boa vida acadêmica decorre da habilidade em resolver problemas, e a secretaria dos calouros pode auxiliar em alguns (se você for um calouro(a))."),
+                //new Objetivo(2, 27, null, "Uma boa vida acadêmica resulta da habilidade em resolver problemas, e a secretaria dos veteranos pode ajudar com alguns (se você for um veterano(a))."),
                 new Objetivo(3, 1, null, "Nem todos os problemas podemos resolver nas secretarias; às vezes, você pode encontrar a solução aqui."),
                 new Objetivo(4, 6, null, "Às vezes é necessário uma lembrancinha acadêmica ou até materiais acadêmicos...."),
             };

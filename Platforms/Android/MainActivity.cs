@@ -31,7 +31,7 @@ public partial class MainActivity : MauiAppCompatActivity
             string localId = NumberRegex().Replace(localIdPath, "");
              
             if(uri.ToString().Contains("guiemeunip") && uri.ToString().Contains("local"))
-                Constants.LocalAtualId = int.Parse(localId);
+                VariaveisGlobais.LocalInicializacaoId = int.Parse(localId);
         }
     }
 
@@ -47,7 +47,7 @@ public partial class MainActivity : MauiAppCompatActivity
             string localId = NumberRegex().Replace(localIdPath, "");
 
             if (strLink.Contains("guiemeunip") && strLink.Contains("local"))
-                Constants.LocalAtualId = int.Parse(localId);
+                VariaveisGlobais.LocalInicializacaoId = int.Parse(localId);
         }
     }
 

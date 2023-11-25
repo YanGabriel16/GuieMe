@@ -94,8 +94,8 @@ namespace GuieMe.Infra.Services
                         y += paintTexto.TextSize * 7f;
 
                         string[] linhas2 = {
-                            $"Prof. Respons",
-                            $"Coordenador do Curso de Ciencia da Computação",
+                            $"Prof. Responsável",
+                            $"Coordenador do Curso",
                             $"UNIP - Sorocaba"
                         };
 
@@ -148,7 +148,7 @@ namespace GuieMe.Infra.Services
                     File = new ReadOnlyFile(caminhoArquivo)
                 });
             }
-            catch (Exception ex) { Constants.erro = ex.Message; }
+            catch (Exception ex) { VariaveisGlobais.erro = ex.Message; }
         }
     }
 }

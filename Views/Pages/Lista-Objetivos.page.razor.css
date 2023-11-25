@@ -4,9 +4,15 @@
 }
 
 .header {
+    margin-top: 50px;
     padding: 4vw 2vw 4vw 2vw;
     width: 100%;
     height: 20%;
     z-index: 6;
     background-color: #263A7F;
+}
+
+.container {
+    background-color: #f0f0f0;
+    padding-top: 10px;
 }

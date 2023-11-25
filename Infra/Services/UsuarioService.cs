@@ -22,16 +22,19 @@ namespace GuieMe.Infra.Services
             AtualizarUsuario(usuario);
         }
 
-        public async void AtualizarUsuario(Usuario usuario)
+        public async void AtualizarUsuario(Usuario usuario, bool zerarObjetivos = false)
         {
-            usuario.ObjetivosConcluidos = new List<Objetivo>();
-            usuario.TodosObjetivosForamConcluidos = false;
-            await _storageService.SetValueAsync(Constants.UsuarioKey, usuario);
+            if (zerarObjetivos)
+            {
+                usuario.ObjetivosConcluidos = new List<Objetivo>();
+                usuario.TodosObjetivosForamConcluidos = false;
+            }
+            await _storageService.SetValueAsync(VariaveisGlobais.UsuarioKey, usuario);
         }
 
         public async Task<Usuario> GetUsuario()
         {
-            var result = await SecureStorage.GetAsync(Constants.UsuarioKey);
+            var result = await SecureStorage.GetAsync(VariaveisGlobais.UsuarioKey);
             if (result == null) 
                 return new Usuario();
 

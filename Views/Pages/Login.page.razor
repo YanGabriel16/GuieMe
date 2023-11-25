@@ -77,7 +77,7 @@ Obs.: Caso seja a primeira vez inserindo seus dados ignore o aviso acima.";
 
         if (result == true)
         {
-            _usuarioService.AtualizarUsuario(usuario);
+            _usuarioService.AtualizarUsuario(usuario, true);
             Navigation.NavigateTo("/");
             return;
         }

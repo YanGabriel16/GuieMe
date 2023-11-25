@@ -111,7 +111,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _objetivoService.ConcluirObjetivo(Constants.LocalAtualId);
+        _objetivoService.ConcluirObjetivo(VariaveisGlobais.LocalInicializacaoId);
 
         locais = LocalService.Locais();
         andares = LocalService.Andares();
@@ -119,10 +119,10 @@
         locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
         this.usuarios = await _usuarioService.GetUsuario();
 
-        if (Constants.LocalAtualId != 0)
+        if (VariaveisGlobais.LocalInicializacaoId != 0)
         {
-            this.valorSelecionadoLocalPartida = Constants.LocalAtualId;
-            var localAtual = this.locais.First(x => x.Id == Constants.LocalAtualId);
+            this.valorSelecionadoLocalPartida = VariaveisGlobais.LocalInicializacaoId;
+            var localAtual = this.locais.First(x => x.Id == VariaveisGlobais.LocalInicializacaoId);
 
             if (localAtual != null)
             {
@@ -275,10 +275,7 @@
                 usuarios.LatitudeAtual = localSelecionadoPartida.LatitudeEntrada;
                 usuarios.LongitudeAtual = localSelecionadoPartida.LongitudeEntrada;
                 usuarios.PisoAtual = localSelecionadoPartida.Pisoo;
-            }
 
-            if (localSelecionadoPartida != null)
-            {
                 if (trocarAndar)
                 {
                     andarPartida = andares.Find(andar => andar.Pisoo == localSelecionadoPartida.Pisoo);
@@ -286,11 +283,8 @@
                 }
             }
 
-            if (latitudeDestino != 0 && longitudeDestino != 0)
-            {
-                if (andarPartida.IndexAndar == indexAndarAtivo)
-                    VerificarCaminhoValido(latitudeDestino, longitudeDestino, mostrarMensagemEscada);
-            }
+            if (latitudeDestino != 0 && longitudeDestino != 0 && andarPartida.IndexAndar == indexAndarAtivo)
+                VerificarCaminhoValido(latitudeDestino, longitudeDestino, mostrarMensagemEscada);
         }
     }
 
