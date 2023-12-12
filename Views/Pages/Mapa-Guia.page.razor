@@ -218,7 +218,9 @@
 
     public async Task OnClickVoltarCheckpoint()
     {
-        if (!locaisAnteriores.Any()) return;
+        if (!locaisAnteriores.Any() || (this.localSelecionadoPartida != null
+            && locaisAnteriores.Last().Id == this.localSelecionadoPartida.Id
+            && locaisAnteriores.Count() == 1)) return;
 
         var localAnterior = locaisAnteriores.Last();
         var escadaOutroPiso = false;
@@ -255,7 +257,9 @@
 
         if (result.Value == false)
         {
+            this.locaisAnteriores = null;
             this.locaisAnteriores = new List<Local>();
+            this.ZerarRota();
             return;
         }
 
@@ -532,6 +536,11 @@
 
     public async Task VerificaSeChegouAoDestino(int latitudeAtual, int longitudeAtual)
     {
+        this.locaisAnteriores = null;
+        this.locaisAnteriores = new();
+
+        if (this.localSelecionadoPartida != null) this.locaisAnteriores.Add(this.localSelecionadoPartida);
+
         alertChegou = true;
         await Task.Delay(2000);
         alertChegou = false;
