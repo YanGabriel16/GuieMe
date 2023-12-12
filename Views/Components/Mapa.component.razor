@@ -42,8 +42,8 @@
 
         @if (usuarios.LatitudeAtual != 0 && usuarios.LongitudeAtual != 0)
         {
-            <div class="pontoAtualUsuario" style="left: @(usuarios.LatitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX/6))px;
-                                        top: @(usuarios.LongitudeAtual * tamanhoPosicaoPX - (tamanhoPosicaoPX / 2) - (tamanhoPosicaoPX/6))px;"></div>
+            <div class="pontoAtualUsuario" style="left: @(usuarios.LatitudeAtual * tamanhoPosicaoPX - 3)px;
+                                        top: @(usuarios.LongitudeAtual * tamanhoPosicaoPX)px;"></div>
         }
     </div>
 </div>

@@ -14,7 +14,6 @@ public class Local
 
     public int Id { get; set; }
     public string Nome { get; set; }
-    //public string Descricao { get; set; }
     public int LatitudeMin { get; set; }
     public int LatitudeMax { get; set; }
     public int LongitudeMin { get; set; }
@@ -26,6 +25,5 @@ public class Local
     public int Pisoo { get; set; }
     public EnPiso Piso { get; set; } = EnPiso.NaoInformado;
     public EnPredio Predio { get; set; } = EnPredio.NaoInformado;
-
     public int AndarId { get; set; }
 }
