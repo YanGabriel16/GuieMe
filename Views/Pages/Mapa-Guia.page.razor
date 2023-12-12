@@ -19,7 +19,7 @@
     <div class="rz-p-xl-12 rz-text-align-center rz-mb-2">
         <RadzenDropDown class="rz-border-radius-10" Data="@locaisAcessiveis" TextProperty="Nome" ValueProperty="Id" @bind-Value=@valorSelecionadoLocalPartida AllowClear="true"
                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Placeholder="Selecione o local de Partida"
-                        Change=@(id_Local => SelectLocalPartida(id_Local)) Style="width: 95%; max-width: 400px;">
+                        Change=@(id_Local => SelectLocalPartida(id_Local, true, true, true)) Style="width: 95%; max-width: 400px;">
         </RadzenDropDown>
     </div>
 
@@ -116,7 +116,6 @@
         locais = LocalService.Locais();
         andares = LocalService.Andares();
         locaisAcessiveis = locais.FindAll(local => local.LocalAcessivel == true);
-        locaisAnteriores.Add(locais.FirstOrDefault(x => x.Id == 0));
         this.usuarios = await _usuarioService.GetUsuario();
 
         if (VariaveisGlobais.LocalInicializacaoId != 0)
@@ -238,11 +237,11 @@
             localAnterior = locais.FindLast(o => o.LatitudeEntrada == localAnterior.LatitudeEntrada
                 && o.LongitudeEntrada == localAnterior.LongitudeEntrada
                 && o.Pisoo == usuarios.PisoAtual);
+            locaisAnteriores.Remove(locaisAnteriores.Last());
         }
 
         if (localAnterior == null) return;
 
-        locaisAnteriores.Remove(locaisAnteriores.Last());
         selecionarLocalCheckpoint(localAnterior);
 
         if (localAnterior.Escada == false || (localAnterior.Escada == true && localAnterior.Pisoo == usuarios.PisoAtual && escadaOutroPiso == false))
@@ -254,7 +253,11 @@
         var mensagemEscada = locaisAnteriores.Last().Pisoo > localAnterior.Pisoo ? "Subir" : "Descer";
         var result = await DialogService.Confirm("Obs.: Negar está opção irá zerar a rota.", $"{mensagemEscada} escadas?", new Radzen.ConfirmOptions() { OkButtonText = "Sim", CancelButtonText = "Não" });
 
-        if (result.Value == false) return;
+        if (result.Value == false)
+        {
+            this.locaisAnteriores = new List<Local>();
+            return;
+        }
 
         localAnterior = locaisAnteriores.Last();
 
@@ -262,13 +265,14 @@
         SelectLocalPartida(localAnterior.Id);
     }
 
-    public void SelectLocalPartida(object id_Local, bool trocarAndar = true, bool mostrarMensagemEscada = true)
+    public void SelectLocalPartida(object id_Local, bool trocarAndar = true, bool mostrarMensagemEscada = true, bool adicionarlocalAnterior = false)
     {
         ZerarRota();
 
         if (id_Local != null)
         {
             localSelecionadoPartida = locais.Find(local => local.Id == (int)id_Local);
+            if (adicionarlocalAnterior == true) this.locaisAnteriores.Add(localSelecionadoPartida);
 
             if (localSelecionadoPartida != null)
             {
