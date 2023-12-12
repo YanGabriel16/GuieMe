@@ -8,8 +8,6 @@ public class Usuario
         Nome = string.Empty;
         Sobrenome = string.Empty;
         Curso = new Curso(0, "Não informado");
-        //LatitudeAtual = 0; //1
-        //LongitudeAtual = 0; //1
         ObjetivosConcluidos = new List<Objetivo>();
         TodosObjetivosForamConcluidos = false;
     }

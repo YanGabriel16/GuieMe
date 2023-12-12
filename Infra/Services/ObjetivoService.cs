@@ -65,10 +65,10 @@ namespace GuieMe.Infra.Services
         {
             var objetivos = new List<Objetivo>()
             {
-                //new Objetivo(1, 28, null, "Uma boa vida acadêmica decorre da habilidade em resolver problemas, e a secretaria dos calouros pode auxiliar em alguns (se você for um calouro(a))."),
-                //new Objetivo(2, 27, null, "Uma boa vida acadêmica resulta da habilidade em resolver problemas, e a secretaria dos veteranos pode ajudar com alguns (se você for um veterano(a))."),
+                new Objetivo(1, 33, null, "Se sentir fome, basta ir até o refeitório."),
+                new Objetivo(2, 28, null, "Uma boa vida acadêmica decorre da habilidade em resolver problemas, e a secretaria dos calouros pode auxiliar em alguns (se você for um calouro(a))."),
                 new Objetivo(3, 1, null, "Nem todos os problemas podemos resolver nas secretarias; às vezes, você pode encontrar a solução aqui."),
-                new Objetivo(4, 6, null, "Às vezes é necessário uma lembrancinha acadêmica ou até materiais acadêmicos...."),
+                new Objetivo(4, 6, null, "Às vezes é necessário uma lembrancinha acadêmica ou  materiais acadêmicos."),
             };
 
             var locais = _localService.Locais();

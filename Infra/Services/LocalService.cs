@@ -60,7 +60,7 @@ namespace GuieMe.Infra.Services
                 new Local(30, "Pós Odontologia")          { LatitudeMin = 20, LongitudeMin = 21, LatitudeMax = 26, LongitudeMax = 26, LatitudeEntrada = 20, LongitudeEntrada = 23, Pisoo = 1, AndarId = 0},
                 new Local(31, "Laboratório Enfermagem")   { LatitudeMin = 20, LongitudeMin = 26, LatitudeMax = 26, LongitudeMax = 31, LatitudeEntrada = 20, LongitudeEntrada = 27, Pisoo = 1, AndarId = 0},
                 new Local(32, "Triagem Odontologia")      { LatitudeMin = 20, LongitudeMin = 31, LatitudeMax = 26, LongitudeMax = 36, LatitudeEntrada = 26, LongitudeEntrada = 35, Pisoo = 1, AndarId = 0},
-                new Local(33, "Copa")                     { LatitudeMin = 19, LongitudeMin = 41, LatitudeMax = 23, LongitudeMax = 45, LatitudeEntrada = 21, LongitudeEntrada = 41, Pisoo = 1, AndarId = 0},
+                new Local(44, "Copa")                     { LatitudeMin = 19, LongitudeMin = 41, LatitudeMax = 23, LongitudeMax = 45, LatitudeEntrada = 21, LongitudeEntrada = 41, Pisoo = 1, AndarId = 0},
                 new Local(33, "Refeitório")               { LatitudeMin = 23, LongitudeMin = 41, LatitudeMax = 27, LongitudeMax = 45, LatitudeEntrada = 25, LongitudeEntrada = 41, Pisoo = 1, AndarId = 0},
                 new Local(34, "Banheiro Feminino")        { LatitudeMin = 14, LongitudeMin = 34, LatitudeMax = 16, LongitudeMax = 36, LatitudeEntrada = 16, LongitudeEntrada = 35, Pisoo = 1, AndarId = 0},
 
